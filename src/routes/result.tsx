@@ -192,34 +192,49 @@ function ResultScreen() {
 
         <div className="mt-12 grid gap-6 lg:grid-cols-[1.35fr_1fr]">
           <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <FigureTile label="You" icon={<User className="h-3.5 w-3.5" />}>
-                {face?.dataUrl ? (
-                  <img src={face.dataUrl} alt="Your photo" className="h-full w-full object-cover" />
-                ) : (
-                  <EmptyTile text="No photo yet" />
-                )}
-              </FigureTile>
+            {tryOn ? (
+              <div className="overflow-hidden rounded-2xl border border-border bg-background">
+                <div className="flex items-center gap-1.5 border-b border-border px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  You in this outfit
+                </div>
+                <img
+                  src={tryOn.imageUrl}
+                  alt="You wearing the outfit"
+                  className="mx-auto max-h-[520px] w-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <FigureTile label="You" icon={<User className="h-3.5 w-3.5" />}>
+                  {face?.dataUrl ? (
+                    <img src={face.dataUrl} alt="Your photo" className="h-full w-full object-cover" />
+                  ) : (
+                    <EmptyTile text="No photo yet" />
+                  )}
+                </FigureTile>
 
-              <FigureTile label="Outfit" icon={<Shirt className="h-3.5 w-3.5" />}>
-                {outfit?.kind === "photo" ? (
-                  <img src={outfit.dataUrl} alt="Your outfit" className="h-full w-full object-cover" />
-                ) : outfit?.kind === "preset" ? (
-                  <div
-                    className={`flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br ${
-                      PRESET_GRADIENTS[outfit.id] ?? "from-primary/60 to-primary"
-                    } text-white`}
-                  >
-                    <Shirt className="h-9 w-9" />
-                    <span className="font-serif text-xl">{outfit.label}</span>
-                  </div>
-                ) : (
-                  <EmptyTile text="No outfit yet" />
-                )}
-              </FigureTile>
-            </div>
+                <FigureTile label="Outfit" icon={<Shirt className="h-3.5 w-3.5" />}>
+                  {outfit?.kind === "photo" ? (
+                    <img src={outfit.dataUrl} alt="Your outfit" className="h-full w-full object-cover" />
+                  ) : outfit?.kind === "preset" ? (
+                    <div
+                      className={`flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br ${
+                        PRESET_GRADIENTS[outfit.id] ?? "from-primary/60 to-primary"
+                      } text-white`}
+                    >
+                      <Shirt className="h-9 w-9" />
+                      <span className="font-serif text-xl">{outfit.label}</span>
+                    </div>
+                  ) : (
+                    <EmptyTile text="No outfit yet" />
+                  )}
+                </FigureTile>
+              </div>
+            )}
 
             <div className="mt-6 rounded-2xl border border-border bg-accent/30 p-5">
+
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <Sparkles className="h-4 w-4 text-primary" />
                 Skin Analysis Summary
