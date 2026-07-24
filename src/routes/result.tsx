@@ -17,9 +17,11 @@ import {
   loadFace,
   loadOutfit,
   loadSkin,
+  loadTryOn,
   type MirrorFace,
   type MirrorOutfit,
   type MirrorSkin,
+  type MirrorTryOn,
 } from "@/lib/mirror-session";
 
 export const Route = createFileRoute("/result")({
