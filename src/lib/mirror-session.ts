@@ -63,3 +63,7 @@ export const loadSkin = () => load<MirrorSkin>(KEYS.skin);
 export const saveOutfit = (v: MirrorOutfit) => save(KEYS.outfit, v);
 export const loadOutfit = () => load<MirrorOutfit>(KEYS.outfit);
 export const clearOutfit = () => isBrowser() && sessionStorage.removeItem(KEYS.outfit);
+
+export const saveTryOn = (v: MirrorTryOn) => save(KEYS.tryon, v);
+export const loadTryOn = () => load<MirrorTryOn>(KEYS.tryon);
+export const clearTryOn = () => isBrowser() && sessionStorage.removeItem(KEYS.tryon);
