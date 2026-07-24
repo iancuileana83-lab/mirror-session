@@ -108,12 +108,24 @@ function OutfitScreen() {
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [face, setFace] = useState<MirrorFace | null>(null);
+  const [category, setCategory] = useState<GarmentCategory>("auto");
+  const [tryOn, setTryOnState] = useState<MirrorTryOn | null>(null);
+  const [tryOnLoading, setTryOnLoading] = useState(false);
+  const [tryOnError, setTryOnError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setFace(loadFace());
+    setTryOnState(loadTryOn());
+  }, []);
 
   const handleFile = async (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
     setSelectedPreset(null);
+    setTryOnState(null);
+    setTryOnError(null);
     try {
       const dataUrl = await fileToDataUrl(file);
       setPreviewDataUrl(dataUrl);
@@ -126,11 +138,36 @@ function OutfitScreen() {
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
     setPreviewDataUrl(null);
+    setTryOnError(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
   const chosenPreset = PRESETS.find((p) => p.id === selectedPreset);
   const hasOutfit = Boolean(preview || selectedPreset);
+  const canTryOn = Boolean(face?.dataUrl && previewDataUrl);
+
+  const handleTryOn = async () => {
+    if (!face?.dataUrl || !previewDataUrl) return;
+    setTryOnLoading(true);
+    setTryOnError(null);
+    try {
+      const res = await tryOnCloth({
+        data: {
+          personDataUrl: face.dataUrl,
+          garmentDataUrl: previewDataUrl,
+          garmentCategory: category,
+        },
+      });
+      const value: MirrorTryOn = { imageUrl: res.imageUrl };
+      setTryOnState(value);
+      saveTryOn(value);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Try-on failed.";
+      setTryOnError(message);
+    } finally {
+      setTryOnLoading(false);
+    }
+  };
 
   const handleSeeFullPicture = () => {
     if (!hasOutfit) return;
@@ -141,6 +178,7 @@ function OutfitScreen() {
     }
     navigate({ to: "/result", search: { event } });
   };
+
 
 
   return (
