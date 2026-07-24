@@ -39,7 +39,13 @@ export const analyzeSkin = createServerFn({ method: "POST" })
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        files: [{ content_type: contentType, file_size: bytes.byteLength }],
+        files: [
+          {
+            file_name: `upload.${contentType.split("/")[1] || "jpg"}`,
+            content_type: contentType,
+            file_size: bytes.byteLength,
+          },
+        ],
       }),
     });
     if (!fileRes.ok) {
