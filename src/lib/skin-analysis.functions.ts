@@ -85,7 +85,7 @@ export const analyzeSkin = createServerFn({ method: "POST" })
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        file_id: fileId,
+        src_file_id: fileId,
         dst_actions: ["hd_moisture", "hd_texture", "hd_pore", "hd_redness"],
         format: "json",
       }),
