@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SkinRouteImport } from './routes/skin'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SessionRouteImport } from './routes/session'
 import { Route as PrepareRouteImport } from './routes/prepare'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SkinRoute = SkinRouteImport.update({
+  id: '/skin',
+  path: '/skin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/prepare': typeof PrepareRoute
   '/session': typeof SessionRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/skin': typeof SkinRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/prepare': typeof PrepareRoute
   '/session': typeof SessionRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/skin': typeof SkinRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/prepare': typeof PrepareRoute
   '/session': typeof SessionRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/skin': typeof SkinRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/prepare' | '/session' | '/sitemap.xml'
+  fullPaths: '/' | '/prepare' | '/session' | '/sitemap.xml' | '/skin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/prepare' | '/session' | '/sitemap.xml'
-  id: '__root__' | '/' | '/prepare' | '/session' | '/sitemap.xml'
+  to: '/' | '/prepare' | '/session' | '/sitemap.xml' | '/skin'
+  id: '__root__' | '/' | '/prepare' | '/session' | '/sitemap.xml' | '/skin'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   PrepareRoute: typeof PrepareRoute
   SessionRoute: typeof SessionRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SkinRoute: typeof SkinRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/skin': {
+      id: '/skin'
+      path: '/skin'
+      fullPath: '/skin'
+      preLoaderRoute: typeof SkinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -107,17 +124,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrepareRoute: PrepareRoute,
   SessionRoute: SessionRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SkinRoute: SkinRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
