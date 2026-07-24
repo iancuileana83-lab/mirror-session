@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -11,6 +11,8 @@ import {
   Shirt,
   ArrowRight,
 } from "lucide-react";
+import { fileToDataUrl, saveOutfit } from "@/lib/mirror-session";
+
 
 export const Route = createFileRoute("/outfit")({
   validateSearch: (search: Record<string, unknown>) => ({
