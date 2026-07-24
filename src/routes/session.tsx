@@ -1,8 +1,22 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Camera, CameraOff, FlipHorizontal } from "lucide-react";
+import { z } from "zod";
+
+const eventLabels: Record<string, string> = {
+  "job-interview": "Job Interview",
+  "professional-photoshoot": "Professional Photoshoot",
+  "date-night": "Date Night",
+  "family-event": "Family Event",
+  other: "Other",
+};
+
+const sessionSearchSchema = z.object({
+  event: z.enum(["job-interview", "professional-photoshoot", "date-night", "family-event", "other"]).optional(),
+});
 
 export const Route = createFileRoute("/session")({
+  validateSearch: sessionSearchSchema,
   head: () => ({
     meta: [
       { title: "New Session — Mirror Session" },
@@ -23,6 +37,7 @@ export const Route = createFileRoute("/session")({
 });
 
 function Session() {
+  const { event } = useSearch({ from: "/session" });
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [active, setActive] = useState(false);
@@ -92,7 +107,12 @@ function Session() {
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back
         </Link>
-        <h1 className="font-heading text-xl text-foreground">Mirror Session</h1>
+        <div className="text-center">
+          <h1 className="font-heading text-xl text-foreground">Mirror Session</h1>
+          {event && (
+            <p className="text-xs font-medium text-primary">Preparing for: {eventLabels[event]}</p>
+          )}
+        </div>
         <div className="w-10" aria-hidden="true" />
       </header>
 
