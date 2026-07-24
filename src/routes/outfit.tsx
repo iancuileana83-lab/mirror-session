@@ -321,9 +321,13 @@ function OutfitScreen() {
 
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <PreviewTile label="You">
-                  <div className="flex h-full items-center justify-center bg-gradient-to-br from-accent/60 to-secondary/40 text-muted-foreground">
-                    <span className="text-xs uppercase tracking-[0.18em]">Your photo</span>
-                  </div>
+                  {face?.dataUrl ? (
+                    <img src={face.dataUrl} alt="Your photo" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-accent/60 to-secondary/40 text-muted-foreground">
+                      <span className="text-xs uppercase tracking-[0.18em]">Your photo</span>
+                    </div>
+                  )}
                 </PreviewTile>
 
                 <PreviewTile label="Outfit">
@@ -342,6 +346,85 @@ function OutfitScreen() {
                     </div>
                   )}
                 </PreviewTile>
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-border bg-card p-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Virtual try-on
+                </div>
+                {!face?.dataUrl ? (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Take or upload your photo on the{" "}
+                    <Link to="/session" search={{ event }} className="underline underline-offset-2">
+                      session step
+                    </Link>{" "}
+                    to see yourself in this outfit.
+                  </p>
+                ) : !previewDataUrl ? (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Upload an outfit photo above — presets can’t be worn virtually.
+                  </p>
+                ) : (
+                  <>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {CATEGORIES.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setCategory(c.id)}
+                          className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                            category === c.id
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-background text-muted-foreground hover:border-primary/40"
+                          }`}
+                        >
+                          {c.label}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleTryOn}
+                      disabled={tryOnLoading || !canTryOn}
+                      className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-90 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      {tryOnLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Generating try-on…
+                        </>
+                      ) : tryOn ? (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Regenerate try-on
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" />
+                          Try it on
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
+
+                {tryOnError && (
+                  <div className="mt-3 flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span className="break-words">{tryOnError}</span>
+                  </div>
+                )}
+
+                {tryOn && !tryOnLoading && (
+                  <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-background">
+                    <img
+                      src={tryOn.imageUrl}
+                      alt="Virtual try-on result"
+                      className="mx-auto max-h-[420px] w-full object-contain"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
@@ -366,6 +449,7 @@ function OutfitScreen() {
 
             </div>
           </section>
+
         </div>
       </main>
     </div>
