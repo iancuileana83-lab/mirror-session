@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X } from "lucide-react";
+import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
+
 
 export const Route = createFileRoute("/skin")({
   validateSearch: (search: Record<string, unknown>) => ({
