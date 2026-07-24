@@ -293,21 +293,17 @@ function OutfitScreen() {
               </div>
 
               <div className="mt-6 flex justify-end">
-                <Link
-                  to="/session"
-                  search={{ event }}
-                  aria-disabled={!hasOutfit}
-                  onClick={(e) => {
-                    if (!hasOutfit) e.preventDefault();
-                  }}
-                  className={`inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 ${
-                    !hasOutfit ? "pointer-events-none opacity-50" : ""
-                  }`}
+                <button
+                  type="button"
+                  onClick={handleSeeFullPicture}
+                  disabled={!hasOutfit}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
                 >
                   See Full Picture
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
               </div>
+
             </div>
           </section>
         </div>
