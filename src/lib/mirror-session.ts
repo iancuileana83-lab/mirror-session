@@ -12,10 +12,13 @@ export type MirrorOutfit =
   | { kind: "photo"; dataUrl: string }
   | { kind: "preset"; id: string; label: string };
 
+export type MirrorTryOn = { imageUrl: string };
+
 const KEYS = {
   face: "ms:face",
   skin: "ms:skin",
   outfit: "ms:outfit",
+  tryon: "ms:tryon",
 } as const;
 
 function isBrowser() {
