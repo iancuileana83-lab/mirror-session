@@ -247,7 +247,7 @@ function SkinAnalysis() {
           <div className="flex items-baseline justify-between">
             <h2 className="font-serif text-2xl text-foreground">Your reading</h2>
             <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              {state === "done" ? "Ready" : state === "analyzing" ? "Reading…" : "Awaiting photo"}
+              {state === "done" ? "Ready" : state === "analyzing" ? "Reading…" : state === "error" ? "Try again" : "Awaiting photo"}
             </span>
           </div>
 
