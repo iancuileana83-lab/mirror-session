@@ -222,18 +222,26 @@ function SkinAnalysis() {
             </div>
           )}
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <button
               type="button"
               onClick={analyze}
               disabled={!preview || state === "analyzing"}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-10 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
             >
-              <Sparkles className="h-4 w-4" />
+              {state === "analyzing" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
               {state === "analyzing" ? "Reading your glow…" : "Analyze Skin"}
             </button>
+            {errorMsg && (
+              <p className="max-w-md text-center text-sm text-destructive">{errorMsg}</p>
+            )}
           </div>
         </section>
+
 
         <section className="mt-16">
           <div className="flex items-baseline justify-between">
