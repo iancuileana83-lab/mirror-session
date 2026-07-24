@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -11,6 +11,8 @@ import {
   Shirt,
   ArrowRight,
 } from "lucide-react";
+import { fileToDataUrl, saveOutfit } from "@/lib/mirror-session";
+
 
 export const Route = createFileRoute("/outfit")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -78,26 +80,46 @@ const PRESETS: Preset[] = [
 
 function OutfitScreen() {
   const { event } = Route.useSearch();
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
-  const handleFile = (file: File | undefined) => {
+  const handleFile = async (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
     setSelectedPreset(null);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setPreviewDataUrl(dataUrl);
+    } catch {
+      setPreviewDataUrl(null);
+    }
   };
 
   const clearPhoto = () => {
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
+    setPreviewDataUrl(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
   const chosenPreset = PRESETS.find((p) => p.id === selectedPreset);
   const hasOutfit = Boolean(preview || selectedPreset);
+
+  const handleSeeFullPicture = () => {
+    if (!hasOutfit) return;
+    if (previewDataUrl) {
+      saveOutfit({ kind: "photo", dataUrl: previewDataUrl });
+    } else if (chosenPreset) {
+      saveOutfit({ kind: "preset", id: chosenPreset.id, label: chosenPreset.label });
+    }
+    navigate({ to: "/result", search: { event } });
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -271,21 +293,17 @@ function OutfitScreen() {
               </div>
 
               <div className="mt-6 flex justify-end">
-                <Link
-                  to="/session"
-                  search={{ event }}
-                  aria-disabled={!hasOutfit}
-                  onClick={(e) => {
-                    if (!hasOutfit) e.preventDefault();
-                  }}
-                  className={`inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 ${
-                    !hasOutfit ? "pointer-events-none opacity-50" : ""
-                  }`}
+                <button
+                  type="button"
+                  onClick={handleSeeFullPicture}
+                  disabled={!hasOutfit}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
                 >
                   See Full Picture
                   <ArrowRight className="h-4 w-4" />
-                </Link>
+                </button>
               </div>
+
             </div>
           </section>
         </div>

@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X } from "lucide-react";
+import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
+
 
 export const Route = createFileRoute("/skin")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -37,26 +39,41 @@ function SkinAnalysis() {
   const [state, setState] = useState<AnalysisState>("idle");
 
 
-  const handleFile = (file: File | undefined) => {
+  const handleFile = async (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
     setState("idle");
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      saveFace({ dataUrl });
+    } catch {
+      // ignore
+    }
   };
 
   const clearPhoto = () => {
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
     setState("idle");
+    clearFace();
     if (inputRef.current) inputRef.current.value = "";
   };
 
   const analyze = () => {
     if (!preview) return;
     setState("analyzing");
-    // Simulated read; real analysis wiring comes later
-    setTimeout(() => setState("done"), 1600);
+    setTimeout(() => {
+      setState("done");
+      saveSkin({
+        hydration: "Comfortably hydrated",
+        texture: "Soft & even",
+        focus: "Under-eye area",
+        tip: "You're already looking great. Warm your cheeks with a cream blush and take a breath — the mirror agrees with you.",
+      });
+    }, 1600);
   };
+
 
   const results =
     state === "done"
