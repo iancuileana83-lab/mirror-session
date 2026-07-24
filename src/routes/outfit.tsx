@@ -80,26 +80,46 @@ const PRESETS: Preset[] = [
 
 function OutfitScreen() {
   const { event } = Route.useSearch();
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
 
-  const handleFile = (file: File | undefined) => {
+  const handleFile = async (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
     setSelectedPreset(null);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setPreviewDataUrl(dataUrl);
+    } catch {
+      setPreviewDataUrl(null);
+    }
   };
 
   const clearPhoto = () => {
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
+    setPreviewDataUrl(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
   const chosenPreset = PRESETS.find((p) => p.id === selectedPreset);
   const hasOutfit = Boolean(preview || selectedPreset);
+
+  const handleSeeFullPicture = () => {
+    if (!hasOutfit) return;
+    if (previewDataUrl) {
+      saveOutfit({ kind: "photo", dataUrl: previewDataUrl });
+    } else if (chosenPreset) {
+      saveOutfit({ kind: "preset", id: chosenPreset.id, label: chosenPreset.label });
+    }
+    navigate({ to: "/result", search: { event } });
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
