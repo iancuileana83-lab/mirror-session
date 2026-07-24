@@ -30,10 +30,12 @@ export const Route = createFileRoute("/skin")({
 type AnalysisState = "idle" | "analyzing" | "done";
 
 function SkinAnalysis() {
+  const { event } = Route.useSearch();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<AnalysisState>("idle");
+
 
   const handleFile = (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -212,12 +214,15 @@ function SkinAnalysis() {
 
         <div className="mt-12 flex justify-center">
           <Link
-            to="/session"
+            to="/outfit"
+            search={{ event }}
+
             className="inline-flex h-11 items-center justify-center rounded-full border border-input bg-background px-8 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Continue to the mirror
+            Continue to outfit
           </Link>
         </div>
+
       </main>
     </div>
   );
