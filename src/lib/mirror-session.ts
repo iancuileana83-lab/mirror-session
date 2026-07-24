@@ -12,10 +12,13 @@ export type MirrorOutfit =
   | { kind: "photo"; dataUrl: string }
   | { kind: "preset"; id: string; label: string };
 
+export type MirrorTryOn = { imageUrl: string };
+
 const KEYS = {
   face: "ms:face",
   skin: "ms:skin",
   outfit: "ms:outfit",
+  tryon: "ms:tryon",
 } as const;
 
 function isBrowser() {
@@ -60,3 +63,7 @@ export const loadSkin = () => load<MirrorSkin>(KEYS.skin);
 export const saveOutfit = (v: MirrorOutfit) => save(KEYS.outfit, v);
 export const loadOutfit = () => load<MirrorOutfit>(KEYS.outfit);
 export const clearOutfit = () => isBrowser() && sessionStorage.removeItem(KEYS.outfit);
+
+export const saveTryOn = (v: MirrorTryOn) => save(KEYS.tryon, v);
+export const loadTryOn = () => load<MirrorTryOn>(KEYS.tryon);
+export const clearTryOn = () => isBrowser() && sessionStorage.removeItem(KEYS.tryon);
