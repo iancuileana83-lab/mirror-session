@@ -102,16 +102,12 @@ export const analyzeSkin = createServerFn({ method: "POST" })
       if (!pollRes.ok) {
         throw new Error(`Poll failed: ${pollRes.status} ${await pollRes.text()}`);
       }
-      const pollJson = (await pollRes.json()) as {
-        result?: {
-          task_status?: string;
-          results?: Array<{ data?: Array<{ dst?: string; ui_score?: number }> }>;
-        };
-      };
-      const status = pollJson.result?.task_status;
+      const pollJson: any = await pollRes.json();
+      const payload = pollJson?.data ?? pollJson?.result ?? {};
+      const status = payload.task_status;
       if (status === "success") {
         const out: UiResult = {};
-        for (const r of pollJson.result?.results ?? []) {
+        for (const r of payload.results ?? []) {
           for (const d of r.data ?? []) {
             if (d.dst && typeof d.ui_score === "number") {
               (out as Record<string, number>)[d.dst] = d.ui_score;
