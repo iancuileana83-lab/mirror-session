@@ -59,7 +59,7 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     const uploadRes = await fetch(req.url, {
       method: req.method || "PUT",
       headers: uploadHeaders,
-      body: bytes,
+      body: bytes as BodyInit,
     });
     if (!uploadRes.ok) {
       throw new Error(`Image upload failed: ${uploadRes.status} ${await uploadRes.text()}`);
