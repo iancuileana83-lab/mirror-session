@@ -52,19 +52,13 @@ export const analyzeSkin = createServerFn({ method: "POST" })
       throw new Error(`File init failed: ${fileRes.status} ${await fileRes.text()}`);
     }
     const fileJson: any = await fileRes.json();
-    const file =
-      fileJson?.result?.files?.[0] ??
-      fileJson?.files?.[0] ??
-      fileJson?.result?.[0] ??
-      (fileJson?.result?.file_id ? fileJson.result : null);
-    if (!file) {
+    const file = fileJson?.data?.files?.[0] ?? fileJson?.result?.files?.[0];
+    if (!file?.file_id || !file?.requests?.[0]?.url) {
       console.error("Unexpected file init response", JSON.stringify(fileJson));
       throw new Error(`No file entry returned: ${JSON.stringify(fileJson).slice(0, 300)}`);
     }
-    const fileId: string = file.file_id ?? file.id;
-    const reqs = file.requests ?? file.request ?? (file.url ? [file] : []);
-    const req = reqs[0];
-    if (!req?.url) throw new Error("No upload URL returned");
+    const fileId: string = file.file_id;
+    const req = file.requests[0];
 
     // 2. Upload bytes to signed URL
     const uploadHeaders: Record<string, string> = { "Content-Type": contentType };
@@ -94,8 +88,8 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     if (!taskRes.ok) {
       throw new Error(`Task start failed: ${taskRes.status} ${await taskRes.text()}`);
     }
-    const taskJson = (await taskRes.json()) as { result?: { task_id: string } };
-    const taskId = taskJson.result?.task_id;
+    const taskJson: any = await taskRes.json();
+    const taskId: string | undefined = taskJson?.data?.task_id ?? taskJson?.result?.task_id;
     if (!taskId) throw new Error("No task_id returned");
 
     // 4. Poll
@@ -108,16 +102,12 @@ export const analyzeSkin = createServerFn({ method: "POST" })
       if (!pollRes.ok) {
         throw new Error(`Poll failed: ${pollRes.status} ${await pollRes.text()}`);
       }
-      const pollJson = (await pollRes.json()) as {
-        result?: {
-          task_status?: string;
-          results?: Array<{ data?: Array<{ dst?: string; ui_score?: number }> }>;
-        };
-      };
-      const status = pollJson.result?.task_status;
+      const pollJson: any = await pollRes.json();
+      const payload = pollJson?.data ?? pollJson?.result ?? {};
+      const status = payload.task_status;
       if (status === "success") {
         const out: UiResult = {};
-        for (const r of pollJson.result?.results ?? []) {
+        for (const r of payload.results ?? []) {
           for (const d of r.data ?? []) {
             if (d.dst && typeof d.ui_score === "number") {
               (out as Record<string, number>)[d.dst] = d.ui_score;
