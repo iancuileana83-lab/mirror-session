@@ -212,12 +212,14 @@ function SkinAnalysis() {
 
         <div className="mt-12 flex justify-center">
           <Link
-            to="/session"
+            to="/outfit"
+            search={(prev) => ({ event: (prev as { event?: string }).event })}
             className="inline-flex h-11 items-center justify-center rounded-full border border-input bg-background px-8 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Continue to the mirror
+            Continue to outfit
           </Link>
         </div>
+
       </main>
     </div>
   );
