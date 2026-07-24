@@ -128,12 +128,14 @@ function ResultScreen() {
   const [face, setFace] = useState<MirrorFace | null>(null);
   const [outfit, setOutfit] = useState<MirrorOutfit | null>(null);
   const [skin, setSkin] = useState<MirrorSkin | null>(null);
+  const [tryOn, setTryOn] = useState<MirrorTryOn | null>(null);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setFace(loadFace());
     setOutfit(loadOutfit());
     setSkin(loadSkin());
+    setTryOn(loadTryOn());
   }, []);
 
   const coherence = useMemo(() => computeCoherence(event, outfit), [event, outfit]);
