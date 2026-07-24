@@ -88,8 +88,8 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     if (!taskRes.ok) {
       throw new Error(`Task start failed: ${taskRes.status} ${await taskRes.text()}`);
     }
-    const taskJson = (await taskRes.json()) as { result?: { task_id: string } };
-    const taskId = taskJson.result?.task_id;
+    const taskJson: any = await taskRes.json();
+    const taskId: string | undefined = taskJson?.data?.task_id ?? taskJson?.result?.task_id;
     if (!taskId) throw new Error("No task_id returned");
 
     // 4. Poll
