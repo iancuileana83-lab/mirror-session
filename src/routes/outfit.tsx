@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Upload,
@@ -10,8 +10,30 @@ import {
   Palette,
   Shirt,
   ArrowRight,
+  Loader2,
+  Sparkles,
+  AlertCircle,
 } from "lucide-react";
-import { fileToDataUrl, saveOutfit } from "@/lib/mirror-session";
+import {
+  fileToDataUrl,
+  loadFace,
+  loadTryOn,
+  saveOutfit,
+  saveTryOn,
+  type MirrorFace,
+  type MirrorTryOn,
+} from "@/lib/mirror-session";
+import { tryOnCloth } from "@/lib/cloth-tryon.functions";
+
+type GarmentCategory = "auto" | "full_body" | "upper_body" | "lower_body" | "shoes";
+
+const CATEGORIES: { id: GarmentCategory; label: string }[] = [
+  { id: "auto", label: "Auto" },
+  { id: "upper_body", label: "Upper" },
+  { id: "lower_body", label: "Lower" },
+  { id: "full_body", label: "Full body" },
+  { id: "shoes", label: "Shoes" },
+];
 
 
 export const Route = createFileRoute("/outfit")({
