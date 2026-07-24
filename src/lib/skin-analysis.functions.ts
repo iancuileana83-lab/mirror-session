@@ -112,12 +112,11 @@ export const analyzeSkin = createServerFn({ method: "POST" })
       const status = payload.task_status;
       if (status === "success") {
         const out: UiResult = {};
-        for (const r of payload.results ?? []) {
-          for (const d of r.data ?? []) {
-            if (d.dst && typeof d.ui_score === "number") {
-              (out as Record<string, number>)[d.dst] = d.ui_score;
-            }
-          }
+        const output = payload.results?.output ?? [];
+        for (const d of output) {
+          if (typeof d?.ui_score !== "number") continue;
+          const key = d.dst ?? (d.type ? `hd_${d.type}` : null);
+          if (key) (out as Record<string, number>)[key] = d.ui_score;
         }
         return out;
       }
