@@ -62,7 +62,12 @@ export const analyzeSkin = createServerFn({ method: "POST" })
 
     // 2. Upload bytes to signed URL
     const uploadHeaders: Record<string, string> = { "Content-Type": contentType };
-    for (const h of req.headers ?? []) uploadHeaders[h.key] = h.value;
+    const reqHeaders = req.headers;
+    if (Array.isArray(reqHeaders)) {
+      for (const h of reqHeaders) uploadHeaders[h.key] = h.value;
+    } else if (reqHeaders && typeof reqHeaders === "object") {
+      for (const [k, v] of Object.entries(reqHeaders)) uploadHeaders[k] = String(v);
+    }
     const uploadRes = await fetch(req.url, {
       method: req.method || "PUT",
       headers: uploadHeaders,
