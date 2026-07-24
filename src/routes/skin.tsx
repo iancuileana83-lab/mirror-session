@@ -30,10 +30,12 @@ export const Route = createFileRoute("/skin")({
 type AnalysisState = "idle" | "analyzing" | "done";
 
 function SkinAnalysis() {
+  const { event } = Route.useSearch();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<AnalysisState>("idle");
+
 
   const handleFile = (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
