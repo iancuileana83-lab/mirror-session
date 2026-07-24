@@ -3,6 +3,9 @@ import { useRef, useState } from "react";
 import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X } from "lucide-react";
 
 export const Route = createFileRoute("/skin")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    event: typeof search.event === "string" ? search.event : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Skin Analysis — Mirror Session" },
