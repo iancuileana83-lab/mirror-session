@@ -64,7 +64,7 @@ function Prepare() {
 
   const handleContinue = () => {
     if (!selected) return;
-    void navigate({ to: "/session", search: { event: selected } });
+    void navigate({ to: "/skin", search: { event: selected } });
   };
 
   return (
