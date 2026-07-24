@@ -127,14 +127,13 @@ function Prepare() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <Link
-              to="/session"
-              search={{ event: selected ?? undefined }}
+            <button
+              onClick={handleContinue}
               disabled={!selected}
               className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-10 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Continue
-            </Link>
+            </button>
           </div>
         </div>
       </section>
