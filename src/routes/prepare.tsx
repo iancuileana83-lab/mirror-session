@@ -60,6 +60,12 @@ const events = [
 
 function Prepare() {
   const [selected, setSelected] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleContinue = () => {
+    if (!selected) return;
+    void navigate({ to: "/session", search: { event: selected } });
+  };
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
