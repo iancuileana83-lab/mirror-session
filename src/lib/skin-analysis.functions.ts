@@ -51,13 +51,20 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     if (!fileRes.ok) {
       throw new Error(`File init failed: ${fileRes.status} ${await fileRes.text()}`);
     }
-    const fileJson = (await fileRes.json()) as {
-      result?: { files?: Array<{ file_id: string; requests: Array<{ url: string; method: string; headers?: Array<{ key: string; value: string }> }> }> };
-    };
-    const file = fileJson.result?.files?.[0];
-    if (!file) throw new Error("No file entry returned");
-    const fileId = file.file_id;
-    const req = file.requests[0];
+    const fileJson: any = await fileRes.json();
+    const file =
+      fileJson?.result?.files?.[0] ??
+      fileJson?.files?.[0] ??
+      fileJson?.result?.[0] ??
+      (fileJson?.result?.file_id ? fileJson.result : null);
+    if (!file) {
+      console.error("Unexpected file init response", JSON.stringify(fileJson));
+      throw new Error(`No file entry returned: ${JSON.stringify(fileJson).slice(0, 300)}`);
+    }
+    const fileId: string = file.file_id ?? file.id;
+    const reqs = file.requests ?? file.request ?? (file.url ? [file] : []);
+    const req = reqs[0];
+    if (!req?.url) throw new Error("No upload URL returned");
 
     // 2. Upload bytes to signed URL
     const uploadHeaders: Record<string, string> = { "Content-Type": contentType };
