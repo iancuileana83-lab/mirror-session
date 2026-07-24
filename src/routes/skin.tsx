@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X, Loader2 } from "lucide-react";
 import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
+import { analyzeSkin } from "@/lib/skin-analysis.functions";
 
 
 export const Route = createFileRoute("/skin")({
@@ -29,14 +31,50 @@ export const Route = createFileRoute("/skin")({
   component: SkinAnalysis,
 });
 
-type AnalysisState = "idle" | "analyzing" | "done";
+type AnalysisState = "idle" | "analyzing" | "done" | "error";
+
+type Results = {
+  hydration: string;
+  hydrationNote: string;
+  texture: string;
+  textureNote: string;
+  focus: string;
+  focusNote: string;
+  tip: string;
+};
+
+function scoreLabel(score: number | undefined, kind: "positive" | "negative"): string {
+  if (typeof score !== "number") return "—";
+  // For positive metrics (moisture, texture) high = good.
+  // For negative metrics (pore, redness) high = more concern.
+  const good = kind === "positive" ? score >= 70 : score <= 30;
+  const mid = kind === "positive" ? score >= 40 : score <= 60;
+  if (good) return kind === "positive" ? "Looking great" : "Beautifully calm";
+  if (mid) return kind === "positive" ? "Comfortably balanced" : "Gently balanced";
+  return kind === "positive" ? "Could use a boost" : "A little to soothe";
+}
+
+function pickFocus(scores: { hd_moisture?: number; hd_texture?: number; hd_pore?: number; hd_redness?: number }) {
+  const entries: Array<[string, number, string]> = [
+    ["Hydration", 100 - (scores.hd_moisture ?? 100), "A light hydrating mist will help your skin feel dewy and awake."],
+    ["Texture", 100 - (scores.hd_texture ?? 100), "A silky primer will smooth things out beautifully before makeup."],
+    ["Pores", scores.hd_pore ?? 0, "A soft, blurring product on the T-zone will keep everything looking soft-focus."],
+    ["Redness", scores.hd_redness ?? 0, "A whisper of green-toned corrector under foundation will even everything out."],
+  ];
+  entries.sort((a, b) => b[1] - a[1]);
+  return { label: entries[0][0], note: entries[0][2] };
+}
 
 function SkinAnalysis() {
   const { event } = Route.useSearch();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<AnalysisState>("idle");
+  const [results, setResults] = useState<Results | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const analyzeSkinFn = useServerFn(analyzeSkin);
 
 
   const handleFile = async (file: File | undefined) => {
@@ -44,9 +82,12 @@ function SkinAnalysis() {
     const url = URL.createObjectURL(file);
     setPreview(url);
     setState("idle");
+    setResults(null);
+    setErrorMsg(null);
     try {
-      const dataUrl = await fileToDataUrl(file);
-      saveFace({ dataUrl });
+      const url = await fileToDataUrl(file);
+      setDataUrl(url);
+      saveFace({ dataUrl: url });
     } catch {
       // ignore
     }
@@ -55,38 +96,49 @@ function SkinAnalysis() {
   const clearPhoto = () => {
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
+    setDataUrl(null);
     setState("idle");
+    setResults(null);
+    setErrorMsg(null);
     clearFace();
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const analyze = () => {
-    if (!preview) return;
+  const analyze = async () => {
+    if (!preview || !dataUrl) return;
     setState("analyzing");
-    setTimeout(() => {
+    setErrorMsg(null);
+    try {
+      const scores = await analyzeSkinFn({ data: { dataUrl } });
+      const focus = pickFocus(scores);
+      const r: Results = {
+        hydration: scoreLabel(scores.hd_moisture, "positive"),
+        hydrationNote:
+          "Your hydration read looks balanced — a light mist before you head out will keep that glow.",
+        texture: scoreLabel(scores.hd_texture, "positive"),
+        textureNote:
+          "A gentle, smooth surface. A little translucent powder will help with camera flash.",
+        focus: focus.label,
+        focusNote: focus.note,
+        tip: "You're already looking great. Warm your cheeks with a cream blush and take a breath — the mirror agrees with you.",
+      };
+      setResults(r);
       setState("done");
       saveSkin({
-        hydration: "Comfortably hydrated",
-        texture: "Soft & even",
-        focus: "Under-eye area",
-        tip: "You're already looking great. Warm your cheeks with a cream blush and take a breath — the mirror agrees with you.",
+        hydration: r.hydration,
+        texture: r.texture,
+        focus: r.focus,
+        tip: r.tip,
       });
-    }, 1600);
+    } catch (err) {
+      console.error(err);
+      setState("error");
+      setErrorMsg(
+        "We couldn't finish reading your skin just now. Try another photo, or give it another moment.",
+      );
+    }
   };
 
-
-  const results =
-    state === "done"
-      ? {
-          hydration: "Comfortably hydrated",
-          hydrationNote: "Your skin looks balanced — a light mist before you head out will keep that glow.",
-          texture: "Soft & even",
-          textureNote: "A gentle, smooth surface. A little translucent powder will help with camera flash.",
-          focus: "Under-eye area",
-          focusNote: "A touch of hydrating concealer, patted (not swiped), will brighten you right up.",
-          tip: "You're already looking great. Warm your cheeks with a cream blush and take a breath — the mirror agrees with you.",
-        }
-      : null;
 
   return (
     <div className="min-h-dvh bg-background">
@@ -170,24 +222,32 @@ function SkinAnalysis() {
             </div>
           )}
 
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex flex-col items-center gap-3">
             <button
               type="button"
               onClick={analyze}
               disabled={!preview || state === "analyzing"}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-10 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
             >
-              <Sparkles className="h-4 w-4" />
+              {state === "analyzing" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
               {state === "analyzing" ? "Reading your glow…" : "Analyze Skin"}
             </button>
+            {errorMsg && (
+              <p className="max-w-md text-center text-sm text-destructive">{errorMsg}</p>
+            )}
           </div>
         </section>
+
 
         <section className="mt-16">
           <div className="flex items-baseline justify-between">
             <h2 className="font-serif text-2xl text-foreground">Your reading</h2>
             <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              {state === "done" ? "Ready" : state === "analyzing" ? "Reading…" : "Awaiting photo"}
+              {state === "done" ? "Ready" : state === "analyzing" ? "Reading…" : state === "error" ? "Try again" : "Awaiting photo"}
             </span>
           </div>
 
