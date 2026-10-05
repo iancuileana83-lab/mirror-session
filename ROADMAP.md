@@ -87,7 +87,7 @@ Suggested time boxes (today is Oct 5): phases 1–4 by Oct 14, 5–7 by Oct 21, 
 |-------|--------|
 | 1 | done (README, MIT license, .env.example, .env ignored) |
 | 2 | done (12 YouCam concerns, plain words; fixed score direction: higher = healthier). Needs your real-photo test |
-| 3–4 | draft built, **waiting for pharmacist review** of src/lib/routine-rules.ts (also shown on the /rules page) |
+| 3–4 | done: pharmacist review applied (pregnancy keeps azelaic/vit C/niacinamide; escalation from user-reported signs, scores only a hint; paused = basic routine only; general rules added) |
 | 5–10 | not started |
 
 ## Open questions for you
