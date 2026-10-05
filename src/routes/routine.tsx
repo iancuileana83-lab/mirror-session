@@ -6,6 +6,7 @@ import {
   ALWAYS_ESCALATE,
   DEFAULT_OPTIONS,
   GENERAL_SAFETY,
+  WARNING_SIGNS,
   buildRoutine,
   type Options,
   type Step,
@@ -93,6 +94,26 @@ function RoutinePage() {
               </label>
             </fieldset>
 
+            <fieldset className="mt-4 rounded-3xl border border-border bg-card p-5">
+              <legend className="px-2 text-sm font-medium text-foreground">Do any of these apply?</legend>
+              {WARNING_SIGNS.map((w) => (
+                <label key={w.key} className="flex items-center gap-3 py-1 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={options[w.key]}
+                    onChange={(e) => setOptions({ ...options, [w.key]: e.target.checked })}
+                  />
+                  {w.label}
+                </label>
+              ))}
+            </fieldset>
+
+            {routine.hints.map((h) => (
+              <p key={h} className="mt-4 rounded-2xl border border-border bg-accent/40 p-4 text-sm text-foreground">
+                {h}
+              </p>
+            ))}
+
             {routine.escalations.length > 0 && (
               <div className="mt-6 rounded-3xl border border-rose-300 bg-rose-50 p-5 text-rose-950">
                 <div className="flex items-center gap-2 font-medium">
@@ -175,7 +196,7 @@ function Slot({ title, icon, steps }: { title: string; icon: React.ReactNode; st
             <p className="mt-1 text-sm text-muted-foreground">{s.ingredient.look_for}</p>
             {s.ingredient.active && (
               <p className="mt-1 text-sm text-muted-foreground">
-                Start with {s.ingredient.start}. {s.ingredient.frequency}
+                Start with {s.start ?? s.ingredient.start}. {s.ingredient.frequency}
               </p>
             )}
             {s.reasons.map((r) => (

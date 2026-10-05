@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import {
   ALWAYS_ESCALATE,
+  AZELAIC_NOTE,
+  PAUSED_NOTE,
+  WARNING_SIGNS,
   COMBO_WARNINGS,
   GENERAL_SAFETY,
   INGREDIENTS,
@@ -90,6 +93,19 @@ function RulesPage() {
               <li key={w.id}>{w.advice}</li>
             ))}
           </ul>
+          <p className="mt-3">{AZELAIC_NOTE}</p>
+          <p className="mt-3">
+            Warning signs you can report (these pause all actives and show a basic routine only):
+          </p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {WARNING_SIGNS.map((w) => (
+              <li key={w.key}>{w.label}</li>
+            ))}
+          </ul>
+          <p className="mt-2">{PAUSED_NOTE}</p>
+          <p className="mt-2">
+            Scan scores are not clinically validated, so they only add a soft hint and never pause the routine.
+          </p>
           <p className="mt-3">{PREGNANCY_NOTE}</p>
           <p className="mt-2">{SENSITIVE_NOTE}</p>
           <p className="mt-3 font-medium text-foreground">{ALWAYS_ESCALATE}</p>

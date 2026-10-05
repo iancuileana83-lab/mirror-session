@@ -180,16 +180,40 @@ export type Options = {
   pregnantOrBreastfeeding: boolean;
   /** User says their skin is sensitive or reacts easily. */
   sensitive: boolean;
+  /** User-reported warning signs. Any of these pauses all actives. */
+  painfulLesions: boolean;
+  changingMole: boolean;
+  /** No improvement after 6-8 weeks of a routine. */
+  noImprovement: boolean;
 };
 
-export const DEFAULT_OPTIONS: Options = { pregnantOrBreastfeeding: false, sensitive: false };
+export const DEFAULT_OPTIONS: Options = {
+  pregnantOrBreastfeeding: false,
+  sensitive: false,
+  painfulLesions: false,
+  changingMole: false,
+  noImprovement: false,
+};
+
+/** Labels for the user-reported signs, shown as checkboxes. */
+export const WARNING_SIGNS: Array<{ key: "painfulLesions" | "changingMole" | "noImprovement"; label: string }> = [
+  { key: "painfulLesions", label: "I have painful, inflamed or deep spots or lesions" },
+  { key: "changingMole", label: "A mole or spot is new, changing, uneven, itchy or bleeding" },
+  { key: "noImprovement", label: "No improvement after 6-8 weeks of a routine" },
+];
+
+/** Sensitive skin: lower vitamin C (or gentler derivatives). */
+export const SENSITIVE_VITAMIN_C = "5-10%, or a gentler derivative such as magnesium ascorbyl phosphate";
 
 export const PATCH_TEST =
   "Patch test every new active first: apply a small amount behind the ear or on the jawline once a day for 2 days. Do not continue if you see redness, itching, burning or swelling.";
 
 export const GENERAL_SAFETY: string[] = [
-  "Start one new active at a time and wait about 2 weeks before adding another.",
-  "Use sunscreen every morning, especially with retinol, vitamin C or exfoliating acids: they make skin more sun-sensitive.",
+  "Sunscreen every morning, always. It matters most with retinol, vitamin C or exfoliating acids, which make skin more sun-sensitive.",
+  "Introduce one new active at a time and wait about 2 weeks before adding another.",
+  "Retinol only at night.",
+  "Never use retinol and acids (salicylic or azelaic) on the same night.",
+  "Vitamin C in the morning.",
   "If skin stings, peels or feels tight for more than a few days, stop the newest active and keep only cleanser, moisturizer and sunscreen.",
   "Keep products away from the eyes, mouth and broken skin.",
 ];
@@ -219,16 +243,27 @@ export type Escalation = {
   text: string;
 };
 
-/** Cases where the app stops giving cosmetic suggestions and points to a professional. */
-export function escalations(scores: Scores): Escalation[] {
+/**
+ * Escalation is based on what the USER reports. YouCam scores are not clinically
+ * validated, so they only give a soft hint (see scoreHints) and never pause actives.
+ */
+export function escalations(options: Options): Escalation[] {
   const out: Escalation[] = [];
-  const s = (k: ConcernId) => scores[k];
-  if (typeof s("redness") === "number" && s("redness")! < 40)
-    out.push({ id: "redness", text: "Strong redness can have medical causes. Please show it to a pharmacist or a dermatologist before adding any active." });
-  if (typeof s("acne") === "number" && s("acne")! < 35)
-    out.push({ id: "acne", text: "Many or deep spots may need medical treatment. Please ask a pharmacist or a dermatologist." });
-  if (typeof s("age_spot") === "number" && s("age_spot")! < 60)
-    out.push({ id: "spots", text: "A camera cannot tell harmless spots from worrying ones. See a doctor about any spot that is new, changing, uneven in colour or shape, itchy or bleeding." });
+  if (options.painfulLesions)
+    out.push({ id: "painful", text: "Painful, inflamed or deep lesions need a pharmacist or a doctor, not a cosmetic routine." });
+  if (options.changingMole)
+    out.push({ id: "mole", text: "A new or changing mole or spot, or one that is uneven, itchy or bleeding, should be seen by a doctor or dermatologist soon." });
+  if (options.noImprovement)
+    out.push({ id: "noimprovement", text: "No improvement after 6-8 weeks means it is time to ask a pharmacist or a dermatologist." });
+  return out;
+}
+
+/** Supporting hints from the scan. They never pause the routine. */
+export function scoreHints(scores: Scores): string[] {
+  const out: string[] = [];
+  const low = (k: ConcernId, n: number) => typeof scores[k] === "number" && scores[k]! < n;
+  if (low("redness", 40) || low("acne", 35))
+    out.push("The scan sees strong redness or many spots. The scan is not clinically validated, but if this matches what you see and it bothers you, ask a pharmacist.");
   return out;
 }
 
@@ -236,10 +271,16 @@ export const ALWAYS_ESCALATE =
   "See a pharmacist or a dermatologist if skin hurts, bleeds, swells, spreads, gets worse after a few weeks, or if you are unsure about anything here.";
 
 export const PREGNANCY_NOTE =
-  "You said you are pregnant, trying to be, or breastfeeding. Retinol and salicylic acid are left out of this routine. Ask a pharmacist or doctor before using any active.";
+  "You said you are pregnant, trying to be, or breastfeeding. Retinol and salicylic acid are left out of this routine. Azelaic acid, vitamin C and niacinamide can stay: please check with your doctor or pharmacist.";
 
 export const SENSITIVE_NOTE =
-  "You said your skin is sensitive. Only one active is suggested, and a patch test matters even more.";
+  "You said your skin is sensitive. Only one active is suggested, vitamin C is kept low (or a gentler derivative), and a patch test matters even more.";
+
+export const AZELAIC_NOTE =
+  "Azelaic acid at 15-20% is a prescription-level strength: ask a doctor or pharmacist before going above the 10% start.";
+
+export const PAUSED_NOTE =
+  "Because of what you reported, only a basic routine is shown (gentle cleanser, moisturizer, daily sunscreen). Actives are paused until you have seen a pharmacist or a doctor.";
 
 // ---------- Engine ----------
 
@@ -248,6 +289,8 @@ export type Step = {
   reasons: string[];
   /** Fixed steps (cleanser, moisturizer, sunscreen) are always there. */
   base: boolean;
+  /** Replaces ingredient.start when set (e.g. gentler vitamin C for sensitive skin). */
+  start?: string;
 };
 
 export type Routine = {
@@ -257,6 +300,10 @@ export type Routine = {
   later: Array<{ ingredient: Ingredient; reasons: string[] }>;
   warnings: string[];
   escalations: Escalation[];
+  /** Soft hints from the scan scores; they never pause the routine. */
+  hints: string[];
+  /** True when user-reported signs paused all actives (basic routine only). */
+  paused: boolean;
   notes: string[];
   patchTest: string | null;
 };
@@ -268,7 +315,10 @@ const BASE_REASON: Record<string, string> = {
 };
 
 export function buildRoutine(scores: Scores, options: Options = DEFAULT_OPTIONS): Routine {
+  const esc = escalations(options);
+  const paused = esc.length > 0;
   const fired = RULES.filter((r) => {
+    if (paused) return false;
     const v = scores[r.concern];
     return typeof v === "number" && v < r.below;
   }).sort((a, b) => a.priority - b.priority);
@@ -317,7 +367,12 @@ export function buildRoutine(scores: Scores, options: Options = DEFAULT_OPTIONS)
   for (const [id, reasons] of chosen) {
     const ing = INGREDIENTS[id];
     if (id === "humectant" || id === "soothing" || id === "ceramide") continue; // moisturizer slot below
-    const step: Step = { ingredient: ing, reasons, base: false };
+    const step: Step = {
+      ingredient: ing,
+      reasons,
+      base: false,
+      start: id === "vitamin_c" && options.sensitive ? SENSITIVE_VITAMIN_C : undefined,
+    };
     if (ing.when === "am" || ing.when === "both") am.push(step);
     if (ing.when === "pm") pm.push(step);
   }
@@ -344,13 +399,17 @@ export function buildRoutine(scores: Scores, options: Options = DEFAULT_OPTIONS)
   const notes: string[] = [];
   if (options.pregnantOrBreastfeeding) notes.push(PREGNANCY_NOTE);
   if (options.sensitive) notes.push(SENSITIVE_NOTE);
+  if (present.has("azelaic")) notes.push(AZELAIC_NOTE);
+  if (paused) notes.push(PAUSED_NOTE);
 
   return {
     am,
     pm,
     later,
     warnings,
-    escalations: escalations(scores),
+    escalations: esc,
+    hints: scoreHints(scores),
+    paused,
     notes,
     patchTest: chosen.some(([id]) => INGREDIENTS[id].active) ? PATCH_TEST : null,
   };
