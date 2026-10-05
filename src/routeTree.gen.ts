@@ -9,37 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SkinRouteImport } from './routes/skin'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SessionRouteImport } from './routes/session'
-import { Route as ResultRouteImport } from './routes/result'
-import { Route as PrepareRouteImport } from './routes/prepare'
-import { Route as OutfitRouteImport } from './routes/outfit'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OutfitRouteImport } from './routes/outfit'
+import { Route as PrepareRouteImport } from './routes/prepare'
+import { Route as ResultRouteImport } from './routes/result'
+import { Route as RoutineRouteImport } from './routes/routine'
+import { Route as RulesRouteImport } from './routes/rules'
+import { Route as SessionRouteImport } from './routes/session'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SkinRouteImport } from './routes/skin'
 
-const SkinRoute = SkinRouteImport.update({
-  id: '/skin',
-  path: '/skin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SessionRoute = SessionRouteImport.update({
-  id: '/session',
-  path: '/session',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResultRoute = ResultRouteImport.update({
-  id: '/result',
-  path: '/result',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrepareRoute = PrepareRouteImport.update({
-  id: '/prepare',
-  path: '/prepare',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OutfitRoute = OutfitRouteImport.update({
@@ -47,9 +29,39 @@ const OutfitRoute = OutfitRouteImport.update({
   path: '/outfit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const PrepareRoute = PrepareRouteImport.update({
+  id: '/prepare',
+  path: '/prepare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultRoute = ResultRouteImport.update({
+  id: '/result',
+  path: '/result',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoutineRoute = RoutineRouteImport.update({
+  id: '/routine',
+  path: '/routine',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RulesRoute = RulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionRoute = SessionRouteImport.update({
+  id: '/session',
+  path: '/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkinRoute = SkinRouteImport.update({
+  id: '/skin',
+  path: '/skin',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -58,6 +70,8 @@ export interface FileRoutesByFullPath {
   '/outfit': typeof OutfitRoute
   '/prepare': typeof PrepareRoute
   '/result': typeof ResultRoute
+  '/routine': typeof RoutineRoute
+  '/rules': typeof RulesRoute
   '/session': typeof SessionRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/skin': typeof SkinRoute
@@ -67,6 +81,8 @@ export interface FileRoutesByTo {
   '/outfit': typeof OutfitRoute
   '/prepare': typeof PrepareRoute
   '/result': typeof ResultRoute
+  '/routine': typeof RoutineRoute
+  '/rules': typeof RulesRoute
   '/session': typeof SessionRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/skin': typeof SkinRoute
@@ -77,6 +93,8 @@ export interface FileRoutesById {
   '/outfit': typeof OutfitRoute
   '/prepare': typeof PrepareRoute
   '/result': typeof ResultRoute
+  '/routine': typeof RoutineRoute
+  '/rules': typeof RulesRoute
   '/session': typeof SessionRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/skin': typeof SkinRoute
@@ -88,6 +106,8 @@ export interface FileRouteTypes {
     | '/outfit'
     | '/prepare'
     | '/result'
+    | '/routine'
+    | '/rules'
     | '/session'
     | '/sitemap.xml'
     | '/skin'
@@ -97,6 +117,8 @@ export interface FileRouteTypes {
     | '/outfit'
     | '/prepare'
     | '/result'
+    | '/routine'
+    | '/rules'
     | '/session'
     | '/sitemap.xml'
     | '/skin'
@@ -106,6 +128,8 @@ export interface FileRouteTypes {
     | '/outfit'
     | '/prepare'
     | '/result'
+    | '/routine'
+    | '/rules'
     | '/session'
     | '/sitemap.xml'
     | '/skin'
@@ -116,6 +140,8 @@ export interface RootRouteChildren {
   OutfitRoute: typeof OutfitRoute
   PrepareRoute: typeof PrepareRoute
   ResultRoute: typeof ResultRoute
+  RoutineRoute: typeof RoutineRoute
+  RulesRoute: typeof RulesRoute
   SessionRoute: typeof SessionRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SkinRoute: typeof SkinRoute
@@ -123,39 +149,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/skin': {
-      id: '/skin'
-      path: '/skin'
-      fullPath: '/skin'
-      preLoaderRoute: typeof SkinRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/session': {
-      id: '/session'
-      path: '/session'
-      fullPath: '/session'
-      preLoaderRoute: typeof SessionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/result': {
-      id: '/result'
-      path: '/result'
-      fullPath: '/result'
-      preLoaderRoute: typeof ResultRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prepare': {
-      id: '/prepare'
-      path: '/prepare'
-      fullPath: '/prepare'
-      preLoaderRoute: typeof PrepareRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/outfit': {
@@ -165,11 +163,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OutfitRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/prepare': {
+      id: '/prepare'
+      path: '/prepare'
+      fullPath: '/prepare'
+      preLoaderRoute: typeof PrepareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result': {
+      id: '/result'
+      path: '/result'
+      fullPath: '/result'
+      preLoaderRoute: typeof ResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/routine': {
+      id: '/routine'
+      path: '/routine'
+      fullPath: '/routine'
+      preLoaderRoute: typeof RoutineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rules': {
+      id: '/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof RulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/session': {
+      id: '/session'
+      path: '/session'
+      fullPath: '/session'
+      preLoaderRoute: typeof SessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skin': {
+      id: '/skin'
+      path: '/skin'
+      fullPath: '/skin'
+      preLoaderRoute: typeof SkinRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -180,6 +220,8 @@ const rootRouteChildren: RootRouteChildren = {
   OutfitRoute: OutfitRoute,
   PrepareRoute: PrepareRoute,
   ResultRoute: ResultRoute,
+  RoutineRoute: RoutineRoute,
+  RulesRoute: RulesRoute,
   SessionRoute: SessionRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SkinRoute: SkinRoute,
@@ -187,3 +229,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -242,14 +242,21 @@ function SkinAnalysis() {
             </div>
           )}
         </section>
-        <div className="mt-12 flex justify-center">
+        <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          {results && (
+            <Link
+              to="/routine"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+            >
+              See my routine
+            </Link>
+          )}
           <Link
             to="/outfit"
             search={{ event }}
-
             className="inline-flex h-11 items-center justify-center rounded-full border border-input bg-background px-8 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Continue to outfit
+            Try a look (bonus)
           </Link>
         </div>
 
@@ -284,3 +291,4 @@ function ConcernCard({ id, score }: { id: string; score: number }) {
     </div>
   );
 }
+

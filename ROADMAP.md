@@ -86,11 +86,14 @@ Suggested time boxes (today is Oct 5): phases 1–4 by Oct 14, 5–7 by Oct 21, 
 | Phase | Status |
 |-------|--------|
 | 1 | done (README, MIT license, .env.example, .env ignored) |
-| 2–10 | next |
+| 2 | done (12 YouCam concerns, plain words; fixed score direction: higher = healthier). Needs your real-photo test |
+| 3–4 | draft built, **waiting for pharmacist review** of src/lib/routine-rules.ts (also shown on the /rules page) |
+| 5–10 | not started |
 
 ## Open questions for you
 
 1. Check the hackathon page for the exact YouCam APIs to be used, the license wording and how judges get access.
 2. Decided: rules-only coach, no second AI model. Routine and safety rules are deterministic; the pharmacist reviews every ingredient and rule.
 3. Your pharmacist rules: I draft the ingredient/safety rules, you review and correct every one.
+
 
