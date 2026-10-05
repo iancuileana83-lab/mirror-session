@@ -1,9 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X, Loader2 } from "lucide-react";
 import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
+import { BAND_LABEL, CONCERNS, bandOf, rankConcerns, type Scores } from "@/lib/skin-concerns";
+
+const bandLabel = (s?: number) => (typeof s === "number" ? BAND_LABEL[bandOf(s)] : "");
 
 
 export const Route = createFileRoute("/skin")({
@@ -33,37 +36,7 @@ export const Route = createFileRoute("/skin")({
 
 type AnalysisState = "idle" | "analyzing" | "done" | "error";
 
-type Results = {
-  hydration: string;
-  hydrationNote: string;
-  texture: string;
-  textureNote: string;
-  focus: string;
-  focusNote: string;
-  tip: string;
-};
-
-function scoreLabel(score: number | undefined, kind: "positive" | "negative"): string {
-  if (typeof score !== "number") return "—";
-  // For positive metrics (moisture, texture) high = good.
-  // For negative metrics (pore, redness) high = more concern.
-  const good = kind === "positive" ? score >= 70 : score <= 30;
-  const mid = kind === "positive" ? score >= 40 : score <= 60;
-  if (good) return kind === "positive" ? "Looking great" : "Beautifully calm";
-  if (mid) return kind === "positive" ? "Comfortably balanced" : "Gently balanced";
-  return kind === "positive" ? "Could use a boost" : "A little to soothe";
-}
-
-function pickFocus(scores: { hd_moisture?: number; hd_texture?: number; hd_pore?: number; hd_redness?: number }) {
-  const entries: Array<[string, number, string]> = [
-    ["Hydration", 100 - (scores.hd_moisture ?? 100), "A light hydrating mist will help your skin feel dewy and awake."],
-    ["Texture", 100 - (scores.hd_texture ?? 100), "A silky primer will smooth things out beautifully before makeup."],
-    ["Pores", scores.hd_pore ?? 0, "A soft, blurring product on the T-zone will keep everything looking soft-focus."],
-    ["Redness", scores.hd_redness ?? 0, "A whisper of green-toned corrector under foundation will even everything out."],
-  ];
-  entries.sort((a, b) => b[1] - a[1]);
-  return { label: entries[0][0], note: entries[0][2] };
-}
+type Results = { scores: Scores; saved: boolean };
 
 function SkinAnalysis() {
   const { event } = Route.useSearch();
@@ -110,27 +83,17 @@ function SkinAnalysis() {
     setErrorMsg(null);
     try {
       const scores = await analyzeSkinFn({ data: { dataUrl } });
-      const focus = pickFocus(scores);
-      const r: Results = {
-        hydration: scoreLabel(scores.hd_moisture, "positive"),
-        hydrationNote:
-          "Your hydration read looks balanced — a light mist before you head out will keep that glow.",
-        texture: scoreLabel(scores.hd_texture, "positive"),
-        textureNote:
-          "A gentle, smooth surface. A little translucent powder will help with camera flash.",
-        focus: focus.label,
-        focusNote: focus.note,
-        tip: "You're already looking great. Warm your cheeks with a cream blush and take a breath — the mirror agrees with you.",
-      };
-      setResults(r);
+      const ranked = rankConcerns(scores);
+      const lowest = ranked[0];
+      setResults({ scores, saved: true });
       setState("done");
       saveSkin({
-        hydration: r.hydration,
-        texture: r.texture,
-        focus: r.focus,
-        tip: r.tip,
-      });
-    } catch (err) {
+        hydration: bandLabel(scores.moisture),
+        texture: bandLabel(scores.texture),
+        focus: lowest ? lowest.concern.label : "",
+        tip: "",
+        scores: scores as Record<string, number>,
+      });    } catch (err) {
       console.error(err);
       setState("error");
       setErrorMsg(
@@ -160,7 +123,7 @@ function SkinAnalysis() {
             Let's take a gentle look at your skin
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-            Upload a clear, well-lit photo of your face. No judgment, no diagnoses — just a
+            Upload a clear, well-lit photo of your face: front-facing, no makeup, even light, face filling most of the frame. No diagnoses — just a
             friendly read to help you feel your best.
           </p>
         </section>
@@ -247,48 +210,38 @@ function SkinAnalysis() {
           <div className="flex items-baseline justify-between">
             <h2 className="font-serif text-2xl text-foreground">Your reading</h2>
             <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              {state === "done" ? "Ready" : state === "analyzing" ? "Reading…" : state === "error" ? "Try again" : "Awaiting photo"}
+              {state === "done" ? "Ready" : state === "analyzing" ? "Reading..." : state === "error" ? "Try again" : "Awaiting photo"}
             </span>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <ResultCard
-              icon={<Droplets className="h-5 w-5" />}
-              label="Hydration Level"
-              value={results?.hydration}
-              note={results?.hydrationNote}
-              state={state}
-            />
-            <ResultCard
-              icon={<Waves className="h-5 w-5" />}
-              label="Texture"
-              value={results?.texture}
-              note={results?.textureNote}
-              state={state}
-            />
-            <ResultCard
-              icon={<Target className="h-5 w-5" />}
-              label="Recommended Focus"
-              value={results?.focus}
-              note={results?.focusNote}
-              state={state}
-            />
-          </div>
-
-          <div className="mt-4 rounded-3xl border border-border bg-accent/40 p-6">
-            <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-              <Lightbulb className="h-4 w-4 text-primary" />
-              A little tip for tonight
+          {results ? (
+            <>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Scores run from 1 to 100; higher means the skin looks healthier in this photo. Shown
+                from the most visible signs to the least.
+              </p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {rankConcerns(results.scores).map(({ concern, score }) => (
+                  <ConcernCard key={concern.id} id={concern.id} score={score} />
+                ))}
+              </div>
+              <p className="mt-6 rounded-2xl border border-border bg-accent/40 p-4 text-sm text-foreground/90">
+                This is a cosmetic reading of one photo, not a diagnosis or medical advice. Light,
+                angle and makeup change the result. If something worries you, ask a pharmacist or a
+                dermatologist.
+              </p>
+            </>
+          ) : (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="rounded-3xl border border-border bg-card p-5">
+                  <div className={`h-5 w-1/2 rounded-full bg-muted ${state === "analyzing" ? "animate-pulse" : ""}`} />
+                  <div className={`mt-3 h-3 w-full rounded-full bg-muted/70 ${state === "analyzing" ? "animate-pulse" : ""}`} />
+                </div>
+              ))}
             </div>
-            <p className="mt-3 min-h-[3rem] text-base leading-relaxed text-foreground/90">
-              {results?.tip ??
-                (state === "analyzing"
-                  ? "Warming up a thoughtful suggestion just for you…"
-                  : "Once you've uploaded a photo, we'll leave you a gentle, encouraging note here.")}
-            </p>
-          </div>
+          )}
         </section>
-
         <div className="mt-12 flex justify-center">
           <Link
             to="/outfit"
@@ -305,51 +258,29 @@ function SkinAnalysis() {
   );
 }
 
-function ResultCard({
-  icon,
-  label,
-  value,
-  note,
-  state,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string;
-  note?: string;
-  state: AnalysisState;
-}) {
-  const isLoading = state === "analyzing";
-  const isEmpty = state === "idle";
-
+function ConcernCard({ id, score }: { id: string; score: number }) {
+  const concern = CONCERNS.find((c) => c.id === id)!;
+  const band = bandOf(score);
+  const color =
+    band === "good" ? "bg-emerald-600" : band === "some" ? "bg-amber-500" : "bg-rose-500";
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
-      <div className="flex items-center gap-2 text-primary">
-        {icon}
-        <span className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          {label}
-        </span>
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="font-serif text-xl text-foreground">{concern.label}</h3>
+        <span className="text-sm font-medium text-foreground">{Math.round(score)}</span>
       </div>
-      {value ? (
-        <>
-          <p className="mt-3 font-serif text-xl text-foreground">{value}</p>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{note}</p>
-        </>
-      ) : (
-        <>
-          <div
-            className={`mt-3 h-5 w-3/4 rounded-full bg-muted ${isLoading ? "animate-pulse" : ""}`}
-          />
-          <div
-            className={`mt-2 h-3 w-full rounded-full bg-muted/70 ${isLoading ? "animate-pulse" : ""}`}
-          />
-          <div
-            className={`mt-2 h-3 w-5/6 rounded-full bg-muted/70 ${isLoading ? "animate-pulse" : ""}`}
-          />
-          {isEmpty && (
-            <p className="mt-4 text-xs text-muted-foreground/70">Waiting for your photo</p>
-          )}
-        </>
-      )}
+      <div
+        className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted"
+        role="img"
+        aria-label={`${concern.label}: ${Math.round(score)} out of 100`}
+      >
+        <div className={`h-full ${color}`} style={{ width: `${Math.max(4, Math.min(100, score))}%` }} />
+      </div>
+      <p className="mt-2 text-sm font-medium text-foreground/90">{BAND_LABEL[band]}</p>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{concern.meaning}</p>
+      <p className="mt-1 text-xs leading-relaxed text-muted-foreground/80">
+        Not: {concern.notMeaning}
+      </p>
     </div>
   );
 }

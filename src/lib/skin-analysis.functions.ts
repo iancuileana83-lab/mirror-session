@@ -1,11 +1,9 @@
-import { createServerFn } from "@tanstack/react-start";
+﻿import { createServerFn } from "@tanstack/react-start";
+import { CONCERNS, HD_ACTIONS, type ConcernId, type Scores } from "./skin-concerns";
 
-type UiResult = {
-  hd_moisture?: number;
-  hd_texture?: number;
-  hd_pore?: number;
-  hd_redness?: number;
-};
+type UiResult = Scores & { all?: number };
+
+const KNOWN = new Set<string>(CONCERNS.map((c) => c.id));
 
 const BASE = "https://yce-api-01.makeupar.com/s2s/v2.0";
 
@@ -86,7 +84,7 @@ export const analyzeSkin = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         src_file_id: fileId,
-        dst_actions: ["hd_moisture", "hd_texture", "hd_pore", "hd_redness"],
+        dst_actions: HD_ACTIONS,
         format: "json",
       }),
     });
@@ -115,8 +113,9 @@ export const analyzeSkin = createServerFn({ method: "POST" })
         const output = payload.results?.output ?? [];
         for (const d of output) {
           if (typeof d?.ui_score !== "number") continue;
-          const key = d.dst ?? (d.type ? `hd_${d.type}` : null);
-          if (key) (out as Record<string, number>)[key] = d.ui_score;
+          const key = String(d.type ?? d.dst ?? "").replace(/^hd_/, "");
+          if (key === "all") out.all = d.ui_score;
+          else if (KNOWN.has(key)) out[key as ConcernId] = d.ui_score;
         }
         return out;
       }
@@ -126,3 +125,4 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     }
     throw new Error("Analysis timed out");
   });
+

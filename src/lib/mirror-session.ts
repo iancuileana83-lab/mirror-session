@@ -7,6 +7,8 @@ export type MirrorSkin = {
   texture: string;
   focus: string;
   tip: string;
+  /** Full YouCam scores (1-100, higher is better), by concern id. */
+  scores?: Record<string, number>;
 };
 export type MirrorOutfit =
   | { kind: "photo"; dataUrl: string }
