@@ -156,6 +156,7 @@ function CheckPage() {
                 <Link to="/product" className="underline underline-offset-4">Change the label</Link>
                 <Link to="/profile" className="underline underline-offset-4">Update my profile</Link>
                 <Link to="/tryon" className="underline underline-offset-4">Try it on (coloured products)</Link>
+                <Link to="/compare" className="underline underline-offset-4">Compare products</Link>
                 <Link to="/rules" className="underline underline-offset-4">How this works</Link>
               </div>
               <button type="button" onClick={useSampleProfile} className="text-muted-foreground underline underline-offset-4">

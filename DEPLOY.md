@@ -1,10 +1,10 @@
-# Deploying Counter Check to Google Cloud Run
+﻿# Deploying Counter Check to Google Cloud Run
 
 Status: **commands only, nothing has been run.** Review first; run them yourself or ask for each step.
 The app builds as a plain Node server (`NITRO_PRESET=node-server`, tested locally: `/` and `/rules` answer 200).
 The Docker image holds no secrets (`.env` is excluded in `.dockerignore`).
 
-Replace `PROJECT_ID`, `BILLING_ID` and the region if you prefer another (Romania: `europe-west1` or `europe-central2`).
+Replace `PROJECT_ID`, `BILLING_ID` and the region if you prefer another (Romania: `REGION` or `europe-central2`).
 PowerShell, from the project folder.
 
 ## 1. Project and APIs
@@ -41,7 +41,7 @@ gcloud secrets add-iam-policy-binding gemini-api-key --member "serviceAccount:$s
 ## 4. Deploy with strict limits
 
 ```powershell
-gcloud run deploy counter-check --source . --region europe-west1 --allow-unauthenticated `
+gcloud run deploy counter-check --source . --region REGION --allow-unauthenticated `
   --cpu 1 --memory 512Mi --timeout 120 --concurrency 20 `
   --min-instances 0 --max-instances 2 `
   --set-secrets "YOUCAM_API_KEY=youcam-api-key:latest,GEMINI_API_KEY=gemini-api-key:latest"
@@ -60,7 +60,7 @@ gcloud billing budgets create --billing-account=BILLING_ID --display-name="count
 ## 6. Address and checks
 
 ```powershell
-gcloud run services describe counter-check --region europe-west1 --format "value(status.url)"
+gcloud run services describe counter-check --region REGION --format "value(status.url)"
 ```
 
 Open the URL on a clean browser and a phone: scan with the sample face, read the sample label, check, try on.
@@ -68,9 +68,10 @@ Open the URL on a clean browser and a phone: scan with the sample face, read the
 ## 7. After judging
 
 ```powershell
-gcloud run services delete counter-check --region europe-west1
+gcloud run services delete counter-check --region REGION
 gcloud secrets delete youcam-api-key
 gcloud secrets delete gemini-api-key
 ```
 
 Also revoke or rotate both API keys if they were ever exposed.
+

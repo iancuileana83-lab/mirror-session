@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckRouteImport } from './routes/check'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ProductRouteImport } from './routes/product'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RoutineRouteImport } from './routes/routine'
@@ -27,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const CheckRoute = CheckRouteImport.update({
   id: '/check',
   path: '/check',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductRoute = ProductRouteImport.update({
@@ -68,6 +74,7 @@ const TryonRoute = TryonRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check': typeof CheckRoute
+  '/compare': typeof CompareRoute
   '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
   '/routine': typeof RoutineRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check': typeof CheckRoute
+  '/compare': typeof CompareRoute
   '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
   '/routine': typeof RoutineRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/check': typeof CheckRoute
+  '/compare': typeof CompareRoute
   '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
   '/routine': typeof RoutineRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/check'
+    | '/compare'
     | '/product'
     | '/profile'
     | '/routine'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/check'
+    | '/compare'
     | '/product'
     | '/profile'
     | '/routine'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/check'
+    | '/compare'
     | '/product'
     | '/profile'
     | '/routine'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckRoute: typeof CheckRoute
+  CompareRoute: typeof CompareRoute
   ProductRoute: typeof ProductRoute
   ProfileRoute: typeof ProfileRoute
   RoutineRoute: typeof RoutineRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/check'
       fullPath: '/check'
       preLoaderRoute: typeof CheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/product': {
@@ -218,6 +238,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckRoute: CheckRoute,
+  CompareRoute: CompareRoute,
   ProductRoute: ProductRoute,
   ProfileRoute: ProfileRoute,
   RoutineRoute: RoutineRoute,
