@@ -51,7 +51,7 @@ sample label is added with the label reader.
 
 Everything works without a login, your own photo or any key. The sample buttons use an AI-generated face (not a real person) and fictional products.
 
-1. **Scan**: open the scan page, press "Try the sample" (an AI-generated face), then "Analyze Skin". YouCam Skin Analysis returns 12 concerns.
+1. **Scan**: open the scan page, press "Try the sample" (an AI-generated face), then "Analyze Skin". It shows the saved result of one real YouCam Skin Analysis scan of that face (12 concerns), labelled as a saved example, because a live HD scan costs 20 units. To see a live scan, upload your own face photo.
 2. **About you**: press "Demo: fill in a sample profile (fictional)".
 3. **Label**: on the label page press "Try the sample label"; Gemini copies the ingredient list (it only transcribes).
 4. **Check**: "Check this product" gives a verdict with the reasons.
@@ -59,8 +59,8 @@ Everything works without a login, your own photo or any key. The sample buttons 
 6. **Compare**: "Demo: load sample products, profile and scan" shows Now, Later, Check first and Skip; confirm to save the list.
 7. **Is it working?**: load the two demo scans and read the honest comparison; confirm a next check-in.
 
-The paid calls (scan, label reader, try-on) have per-visitor and daily limits. When one is reached, the app says so and
-shows a saved example, so the rest of the flow still works.
+The paid calls (live scan of your own photo, label reader, try-on) have per-visitor, daily and total limits, kept in a counter that
+survives restarts. When one is reached, the app says so and shows a saved example, so the rest of the flow still works.
 
 ## Run locally
 

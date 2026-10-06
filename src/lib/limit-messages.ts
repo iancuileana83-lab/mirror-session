@@ -6,6 +6,7 @@ export function isLimitError(err: unknown): boolean {
 
 export function limitMessage(err: unknown, what: string): string {
   const reason = err instanceof Error ? err.message.replace("Limit:", "").trim() : "";
+  if (reason === "total") return `The demo has used up its allowance of ${what}.`;
   if (reason === "daily") return `The demo has reached its daily limit for ${what}. Please try again tomorrow.`;
   if (reason === "paused") return `The demo is not running ${what} right now.`;
   return `You have reached the demo limit for ${what} for now. Please try again later.`;

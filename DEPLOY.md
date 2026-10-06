@@ -77,15 +77,41 @@ gcloud run services add-iam-policy-binding counter-check --region REGION --proje
 `--allow-unauthenticated` makes the link public (judges need no login); an organisation policy may block it.
 `--max-instances 2` and `--min-instances 0` cap the cost; the app itself adds per-visitor and daily caps (roadmap phase 9).
 
-## 5b. Limits inside the app, and an emergency pause
+## 5a. A hard usage counter that survives restarts (needed for the unit caps)
 
-The server counts the three paid calls (face scan, label reader, try-on) per visitor and per day, and shows a
-friendly "demo limit reached" message with a saved example when a limit is hit. Defaults (per visitor per hour /
-per day, and total per instance per day): scan 3 / 6 / 40, label 6 / 12 / 100, try-on 3 / 6 / 30. Counts are in
-memory, so each instance counts for itself and a cold start resets them; `--max-instances 2` bounds the total.
-The YouCam and Gemini balances are the hard stop.
+YouCam units: an HD Skin Analysis costs 20 units and a makeup try-on 1 unit. To keep real-photo scans under 1,200 units
+in total, the app keeps one small counter object in its own Cloud Storage bucket (compare-and-swap, so two instances
+cannot both spend the last call). In-memory counters are not enough on Cloud Run: instances restart and forget.
 
-Raise all limits (a number of 1 or more) or pause all three paid calls at once, without redeploying:
+```powershell
+gcloud storage buckets create gs://PROJECT_ID-counter-check-usage --project PROJECT_ID --location REGION `
+  --uniform-bucket-level-access --public-access-prevention
+gcloud storage buckets add-iam-policy-binding gs://PROJECT_ID-counter-check-usage --project PROJECT_ID `
+  --member "serviceAccount:counter-check-run@PROJECT_ID.iam.gserviceaccount.com" --role roles/storage.objectUser
+```
+
+Then deploy a new revision (same limits as step 5) with the bucket name as an environment variable:
+
+```powershell
+gcloud run deploy counter-check --source . --region REGION --project PROJECT_ID `
+  --update-env-vars USAGE_BUCKET=PROJECT_ID-counter-check-usage --quiet
+```
+
+If the counter cannot be read or written, the paid calls are refused (fail closed) and the visitor sees the saved example.
+
+## 5b. The limits, and an emergency pause
+
+The sample face never calls YouCam: its scan shows a saved result of one real scan (0 units). Only a visitor's own
+photo triggers a live scan. Caps (visitor limits are per instance and soft; the daily and total caps are hard):
+
+| Call | Per visitor | Everyone per day | Everyone in total (until Jan 3, 2027) | YouCam units at most |
+|------|-------------|------------------|----------------------------------------|----------------------|
+| Skin scan (20 units) | 1 per hour, 2 per day | 6 | 60 | 1,200 |
+| Try-on (1 unit) | 3 per hour, 4 per day | 20 | 250 | 250 |
+| Label reader (Gemini, no YouCam units) | 6 per hour, 12 per day | 100 | 2,000 | 0 |
+
+Together at most 1,450 of 1,891 units (balance on Oct 6, 2026), so at least 441 units stay in reserve.
+Raise every cap (a number of 1 or more; this also raises the unit risk) or pause all three paid calls at once, without redeploying:
 
 ```powershell
 gcloud run services update counter-check --region REGION --update-env-vars DEMO_LIMIT_SCALE=2
@@ -122,6 +148,7 @@ announced. Then:
 gcloud run services delete counter-check --region REGION
 gcloud secrets delete counter-check-youcam-key
 gcloud secrets delete counter-check-gemini-key
+gcloud storage rm -r gs://PROJECT_ID-counter-check-usage
 gcloud iam service-accounts delete counter-check-run@PROJECT_ID.iam.gserviceaccount.com
 ```
 

@@ -6,7 +6,7 @@ import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-sessi
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
 import { SAMPLE_FACE_LABEL, loadSampleFace } from "@/lib/sample-face";
 import { addScan } from "@/lib/history";
-import { DEMO_SCORES } from "@/lib/demo";
+import { DEMO_SCORES, SAMPLE_FACE_SCORES } from "@/lib/demo";
 import { isLimitError, limitMessage } from "@/lib/limit-messages";
 import { BAND_LABEL, CONCERNS, bandOf, rankConcerns, type Scores } from "@/lib/skin-concerns";
 
@@ -45,6 +45,7 @@ function SkinAnalysis() {
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<AnalysisState>("idle");
   const [usedSample, setUsedSample] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
   const [results, setResults] = useState<Results | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const analyzeSkinFn = useServerFn(analyzeSkin);
@@ -98,8 +99,28 @@ function SkinAnalysis() {
 
   const analyze = async () => {
     if (!preview || !dataUrl) return;
-    setState("analyzing");
     setErrorMsg(null);
+    if (usedSample) {
+      // The sample face never calls YouCam: a real HD scan costs 20 units. Show the saved result of a
+      // real scan of this exact image instead, clearly labelled.
+      const lowest = rankConcerns(SAMPLE_FACE_SCORES)[0];
+      setNote(
+        "Saved example: this is the result of a real YouCam Skin Analysis scan of this AI-generated face, saved in advance. No live scan was run. Upload your own photo for a live scan.",
+      );
+      setResults({ scores: SAMPLE_FACE_SCORES, saved: false });
+      setState("done");
+      addScan(SAMPLE_FACE_SCORES, "sample");
+      saveSkin({
+        hydration: bandLabel(SAMPLE_FACE_SCORES.moisture),
+        texture: bandLabel(SAMPLE_FACE_SCORES.texture),
+        focus: lowest ? lowest.concern.label : "",
+        tip: "",
+        scores: SAMPLE_FACE_SCORES as Record<string, number>,
+      });
+      return;
+    }
+    setNote(null);
+    setState("analyzing");
     try {
       const scores = await analyzeSkinFn({ data: { dataUrl } });
       const ranked = rankConcerns(scores);
@@ -255,6 +276,9 @@ function SkinAnalysis() {
 
           {results ? (
             <>
+              {note && (
+                <p className="mt-3 rounded-2xl border border-primary/40 bg-primary/5 p-3 text-sm text-foreground">{note}</p>
+              )}
               <p className="mt-3 text-sm text-muted-foreground">
                 Scores run from 1 to 100; higher means the skin looks healthier in this photo. Shown
                 from the most visible signs to the least.
