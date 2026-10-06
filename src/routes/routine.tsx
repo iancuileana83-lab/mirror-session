@@ -16,7 +16,7 @@ import type { Scores } from "@/lib/skin-concerns";
 export const Route = createFileRoute("/routine")({
   head: () => ({
     meta: [
-      { title: "Your routine - Mirror Session" },
+      { title: "Your routine - Counter Check" },
       {
         name: "description",
         content:
@@ -43,13 +43,13 @@ function RoutinePage() {
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
         <Link
           to="/skin"
-          search={{ event: undefined }}
+          
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to scan
         </Link>
-        <span className="font-serif text-lg text-foreground">Mirror Session</span>
+        <span className="font-serif text-lg text-foreground">Counter Check</span>
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-6 pb-24">
@@ -66,7 +66,7 @@ function RoutinePage() {
             <p className="text-foreground">No scan yet.</p>
             <Link
               to="/skin"
-              search={{ event: undefined }}
+              
               className="mt-4 inline-flex h-11 items-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground"
             >
               Scan your skin first

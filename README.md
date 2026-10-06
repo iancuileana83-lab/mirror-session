@@ -1,35 +1,50 @@
-﻿# Mirror Session
+# Counter Check
 
-**Pharmacist-guided skin routine.** Scan your face with YouCam Skin AI, understand the result in
-plain words, get a simple morning/evening routine of *active ingredients* (no brand names) with the
-reason for each step, and track progress by comparing scans over time. A rules-based "skin coach"
-proposes the routine and the next check-in, and saves nothing until you confirm.
+**Your pharmacist, right before you buy.** Check a skincare or makeup product against your skin,
+your medicines and your allergies before it goes in the basket.
 
-Created by a former community pharmacist (20 years of practice) for the YouCam API Skin AI &
-eCommerce VTO Hackathon.
+Made by a former community pharmacist (20 years of practice) for the YouCam API Skin AI &
+eCommerce VTO Hackathon. Formerly "Mirror Session".
 
-> Not medical advice. Mirror Session does not diagnose or treat anything. If results go beyond
-> cosmetics, it tells you to see a pharmacist or dermatologist.
+> Not medical advice. Counter Check does not diagnose or treat anything. When in doubt, ask your
+> pharmacist or doctor. All products and labels in the demo are fictional.
+
+## How it works
+
+1. **Scan your face** with the YouCam Skin Analysis API (12 skin concerns, explained in plain words).
+2. **Tell it about you**: allergies and intolerances, medicines, pregnancy or breastfeeding.
+3. **Photo of the ingredient label**: Google's Gemini model is used **only to transcribe** the
+   ingredient list into text. It never judges or advises, and you can correct the text.
+4. **Pharmacist check**: fixed, human-written rules (no AI) say whether the product fits your skin
+   results, clashes with your routine or medicines, or matches your allergies, with the reason.
+5. **Try it on** with the YouCam makeup Virtual Try-On API for coloured products.
+6. **Shopping agent** compares 2-3 products and proposes a basket; nothing is saved until you confirm.
+7. **Is it working?** Re-scan after 4-6 weeks and compare honestly.
+
+Build status is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## YouCam APIs used
 
-- **Skin Analysis API**: the core of the app (skin concerns from a face photo).
-- **Clothes Virtual Try-On API**: a bonus "try a look" step.
+- **Skin Analysis API**: the face scan (and the re-scan).
+- **Makeup Virtual Try-On API**: the colour preview (planned, key access confirmed).
 
-All YouCam calls run on the server (`src/lib/*.functions.ts`); the API key never reaches the browser.
+All YouCam and Gemini calls run on the server; API keys never reach the browser.
 
 ## What's new in this upgrade
 
-| Before (original Mirror Session) | After |
+| Before (Mirror Session) | After (Counter Check) |
 |---|---|
-| Look-good check before an event | Skin routine with reasons, safety notes and progress |
-| 4 fixed product-style tips | Deterministic ingredient routine (morning/evening), no brands |
-| No safety content | Patch test, combinations to avoid, "see a pharmacist or dermatologist" |
-| Results lost when the tab closes | Scan history saved on your device, compared over time |
-| No agent | Rules-based coach: proposes, you confirm, then it saves |
-| Virtual Try-On was the main feature | Virtual Try-On kept as a bonus |
+| Look-good check before an event | A pharmacist check at the shelf, before buying |
+| 4 fixed product-style tips | Rule-based checks of a real ingredient list against skin, medicines and allergies |
+| No safety content | Patch test, combinations to avoid, pregnancy and breastfeeding rules, "ask your pharmacist or doctor" |
+| Clothes try-on only | Makeup try-on for coloured products |
+| No agent | A shopping agent that proposes and waits for your confirmation |
+| Results lost on tab close | Scan history, honest comparison over time |
 
-(Rows are completed as the phases in [ROADMAP.md](ROADMAP.md) are finished.)
+## Try it without a photo
+
+The scan page has a "Try the sample" button that uses a drawn face (no real person). A fictional
+sample label is added with the label reader.
 
 ## Run locally
 
@@ -37,11 +52,11 @@ Windows (PowerShell), Node 20+:
 
 ```sh
 npm.cmd install
-copy .env.example .env      # then put your own YouCam key in .env
+copy .env.example .env      # then put your own keys in .env
 npm.cmd run dev
 ```
 
-`.env` is ignored by git. Never paste the key into the code, an issue or a chat.
+`.env` is ignored by git. Never paste keys into code, issues or chat.
 
 ## Stack
 

@@ -1,31 +1,28 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Upload, Sparkles, Droplets, Waves, Target, Lightbulb, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Sparkles, X, Loader2 } from "lucide-react";
 import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
+import { makeSampleFace } from "@/lib/sample-face";
 import { BAND_LABEL, CONCERNS, bandOf, rankConcerns, type Scores } from "@/lib/skin-concerns";
 
 const bandLabel = (s?: number) => (typeof s === "number" ? BAND_LABEL[bandOf(s)] : "");
 
 
 export const Route = createFileRoute("/skin")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    event: typeof search.event === "string" ? search.event : undefined,
-  }),
   head: () => ({
     meta: [
-      { title: "Skin Analysis — Mirror Session" },
+      { title: "Scan your skin - Counter Check" },
       {
         name: "description",
         content:
-          "Upload a clear, well-lit photo of your face for a gentle, reassuring skin read before your big moment.",
+          "Upload a clear, well-lit photo of your face for a plain-words skin reading. Not a diagnosis.",
       },
-      { property: "og:title", content: "Skin Analysis — Mirror Session" },
+      { property: "og:title", content: "Scan your skin - Counter Check" },
       {
         property: "og:description",
-        content:
-          "A calm, non-clinical skin check to help you feel confident before you leave the house.",
+        content: "A cosmetic skin reading of one photo, explained in plain words.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -39,7 +36,6 @@ type AnalysisState = "idle" | "analyzing" | "done" | "error";
 type Results = { scores: Scores; saved: boolean };
 
 function SkinAnalysis() {
-  const { event } = Route.useSearch();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [dataUrl, setDataUrl] = useState<string | null>(null);
@@ -64,6 +60,17 @@ function SkinAnalysis() {
     } catch {
       // ignore
     }
+  };
+
+  /** Judge sample mode: a drawn, fictional face (no real person). */
+  const useSampleFace = () => {
+    const url = makeSampleFace();
+    setPreview(url);
+    setDataUrl(url);
+    setState("idle");
+    setResults(null);
+    setErrorMsg(null);
+    saveFace({ dataUrl: url });
   };
 
   const clearPhoto = () => {
@@ -108,24 +115,24 @@ function SkinAnalysis() {
     <div className="min-h-dvh bg-background">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
         <Link
-          to="/prepare"
+          to="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
         </Link>
-        <span className="font-serif text-lg text-foreground">Mirror Session</span>
+        <span className="font-serif text-lg text-foreground">Counter Check</span>
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-6 pb-24">
         <section className="text-center">
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Step 2</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Step 1 of 5</p>
           <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
-            Let's take a gentle look at your skin
+            Scan your skin
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
-            Upload a clear, well-lit photo of your face: front-facing, no makeup, even light, face filling most of the frame. No diagnoses — just a
-            friendly read to help you feel your best.
+            Upload a clear, well-lit photo of your face: front-facing, no makeup, even light, face
+            filling most of the frame. This is a cosmetic reading, not a diagnosis.
           </p>
         </section>
 
@@ -187,6 +194,15 @@ function SkinAnalysis() {
           )}
 
           <div className="mt-8 flex flex-col items-center gap-3">
+            {!preview && (
+              <button
+                type="button"
+                onClick={useSampleFace}
+                className="text-sm font-medium text-primary underline underline-offset-4"
+              >
+                No photo? Try the sample (a drawn face, not a real person)
+              </button>
+            )}
             <button
               type="button"
               onClick={analyze}
@@ -252,13 +268,6 @@ function SkinAnalysis() {
               See my routine
             </Link>
           )}
-          <Link
-            to="/outfit"
-            search={{ event }}
-            className="inline-flex h-11 items-center justify-center rounded-full border border-input bg-background px-8 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Try a look (bonus)
-          </Link>
         </div>
 
       </main>

@@ -34,7 +34,8 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error: rawError, reset }: { error: unknown; reset: () => void }) {
+  const error = rawError instanceof Error ? rawError : new Error(String(rawError));
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -77,14 +78,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Mirror Session" },
-      { name: "description", content: "See yourself clearly before the moment matters." },
-      { name: "author", content: "Mirror Session" },
-      { property: "og:title", content: "Mirror Session" },
-      { property: "og:description", content: "See yourself clearly before the moment matters." },
+      { title: "Counter Check - your pharmacist, right before you buy" },
+      {
+        name: "description",
+        content:
+          "Check a product before you buy it: your skin scan, your medicines and your allergies against the ingredient list.",
+      },
+      { name: "author", content: "Counter Check" },
+      { property: "og:title", content: "Counter Check" },
+      {
+        property: "og:description",
+        content: "Check a product before you buy it. Not medical advice.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@mirrorsession" },
     ],
     links: [
       {
