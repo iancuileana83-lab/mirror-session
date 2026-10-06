@@ -43,14 +43,15 @@ All YouCam and Gemini calls run on the server; API keys never reach the browser.
 
 ## Try it without a photo
 
-The scan page has a "Try the sample" button that uses a drawn face (no real person). A fictional
+The scan page has a "Try the sample" button that uses an AI-generated face (StyleGAN2, thispersondoesnotexist.com;
+not a real person; the image carries its own "StyleGAN2 (Karras et al.)" credit). A fictional
 sample label is added with the label reader.
 
 ## For judges: test it in 2 minutes, no account and no key
 
-Everything works without a login, your own photo or any key. The sample buttons use a drawn face and fictional products.
+Everything works without a login, your own photo or any key. The sample buttons use an AI-generated face (not a real person) and fictional products.
 
-1. **Scan**: open the scan page, press "Try the sample" (a drawn face), then "Analyze Skin". YouCam Skin Analysis returns 12 concerns.
+1. **Scan**: open the scan page, press "Try the sample" (an AI-generated face), then "Analyze Skin". YouCam Skin Analysis returns 12 concerns.
 2. **About you**: press "Demo: fill in a sample profile (fictional)".
 3. **Label**: on the label page press "Try the sample label"; Gemini copies the ingredient list (it only transcribes).
 4. **Check**: "Check this product" gives a verdict with the reasons.

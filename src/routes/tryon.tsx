@@ -5,7 +5,7 @@ import { ArrowLeft, Loader2, Sparkles, Upload } from "lucide-react";
 import { makeupTryOn, type TryOnKind } from "@/lib/makeup-tryon.functions";
 import { fileToDataUrl, loadFace, saveFace } from "@/lib/mirror-session";
 import { shrinkDataUrl } from "@/lib/image-utils";
-import { makeSampleFace } from "@/lib/sample-face";
+import { SAMPLE_FACE_LABEL, loadSampleFace } from "@/lib/sample-face";
 import { isLimitError, limitMessage } from "@/lib/limit-messages";
 
 export const Route = createFileRoute("/tryon")({
@@ -98,7 +98,7 @@ function TryOnPage() {
       if (isLimitError(err)) {
         // Never dead-end: show a saved example (fictional face, not the visitor).
         setMessage(`${limitMessage(err, "try-ons")} Below is a saved example result instead.`);
-        setExampleFace(makeSampleFace());
+        void loadSampleFace().then(setExampleFace).catch(() => setExampleFace(null));
         setResult(null);
         return;
       }
@@ -141,10 +141,10 @@ function TryOnPage() {
             </button>
             <button
               type="button"
-              onClick={() => setNewFace(makeSampleFace())}
+              onClick={() => void loadSampleFace().then(setNewFace).catch(() => setMessage("Could not load the sample face."))}
               className="text-sm font-medium text-primary underline underline-offset-4"
             >
-              Use the sample (a drawn face)
+              Use the sample (AI-generated face, not a real person)
             </button>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
@@ -208,12 +208,12 @@ function TryOnPage() {
         {(face || exampleFace) && (
           <section className="grid gap-4 sm:grid-cols-2">
             <figure className="overflow-hidden rounded-3xl border border-border bg-card">
-              <img src={exampleFace ?? face ?? ""} alt={exampleFace ? "Example: a drawn face" : "Your photo"} className="w-full object-contain" />
-              <figcaption className="p-3 text-center text-xs text-muted-foreground">{exampleFace ? "Before (example: a drawn face, not your photo)" : "Before"}</figcaption>
+              <img src={exampleFace ?? face ?? ""} alt={exampleFace ? `Example: ${SAMPLE_FACE_LABEL}` : "Your photo"} className="w-full object-contain" />
+              <figcaption className="p-3 text-center text-xs text-muted-foreground">{exampleFace ? `Before (example: ${SAMPLE_FACE_LABEL}; not your photo)` : "Before"}</figcaption>
             </figure>
             <figure className="overflow-hidden rounded-3xl border border-border bg-card">
               {exampleFace ? (
-                <img src="/examples/tryon-example.jpg" alt="Example result: foundation Deep on a drawn face" className="w-full object-contain" />
+                <img src="/examples/tryon-example.jpg" alt="Example result: lipstick Rosewood on an AI-generated face" className="w-full object-contain" />
               ) : result ? (
                 <img src={result} alt={`Your photo with ${shade.name}`} className="w-full object-contain" />
               ) : (
@@ -222,7 +222,7 @@ function TryOnPage() {
                 </div>
               )}
               <figcaption className="p-3 text-center text-xs text-muted-foreground">
-                {exampleFace ? "Example result: foundation Deep on a drawn face" : result ? `After: ${SHADES[kind].label.toLowerCase()} ${shade.name}` : "After"}
+                {exampleFace ? "Example result: lipstick Rosewood on an AI-generated face, not a real person" : result ? `After: ${SHADES[kind].label.toLowerCase()} ${shade.name}` : "After"}
               </figcaption>
             </figure>
           </section>

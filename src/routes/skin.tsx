@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Upload, Sparkles, X, Loader2 } from "lucide-react";
 import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
-import { makeSampleFace } from "@/lib/sample-face";
+import { SAMPLE_FACE_LABEL, loadSampleFace } from "@/lib/sample-face";
 import { addScan } from "@/lib/history";
 import { DEMO_SCORES } from "@/lib/demo";
 import { isLimitError, limitMessage } from "@/lib/limit-messages";
@@ -67,9 +67,15 @@ function SkinAnalysis() {
     }
   };
 
-  /** Judge sample mode: a drawn, fictional face (no real person). */
-  const useSampleFace = () => {
-    const url = makeSampleFace();
+  /** Judge sample mode: an AI-generated face (not a real person). */
+  const useSampleFace = async () => {
+    let url: string;
+    try {
+      url = await loadSampleFace();
+    } catch {
+      setErrorMsg("Could not load the sample face. Try again, or choose your own photo.");
+      return;
+    }
     setUsedSample(true);
     setPreview(url);
     setDataUrl(url);
@@ -216,7 +222,7 @@ function SkinAnalysis() {
                 onClick={useSampleFace}
                 className="text-sm font-medium text-primary underline underline-offset-4"
               >
-                No photo? Try the sample (a drawn face, not a real person)
+                No photo? Try the sample ({SAMPLE_FACE_LABEL})
               </button>
             )}
             <button

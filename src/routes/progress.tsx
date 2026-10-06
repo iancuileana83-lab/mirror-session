@@ -34,7 +34,7 @@ const CHANGE_STYLE: Record<Change, { text: string; cls: string; Icon: typeof Arr
   same: { text: "No clear change", cls: "text-muted-foreground", Icon: ArrowRight },
 };
 
-const SOURCE_LABEL = { photo: "photo", sample: "sample drawn face", demo: "demo (fictional)" } as const;
+const SOURCE_LABEL = { photo: "photo", sample: "sample face (AI-generated)", demo: "demo (fictional)" } as const;
 
 function ProgressPage() {
   const [scans, setScans] = useState<ScanRecord[]>([]);

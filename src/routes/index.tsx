@@ -57,7 +57,7 @@ function Index() {
           </Link>
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          The sample uses a drawn face and a fictional label. No account, nothing to install.
+          The sample uses an AI-generated face (not a real person) and a fictional label. No account, nothing to install.
         </p>
       </div>
 
