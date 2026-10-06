@@ -237,14 +237,14 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
       level: "ask",
       category: "routine",
       ingredients: retinol,
-      because: "your evening routine already has an acid, and retinol and acids should never be used on the same night",
+      because: "your evening routine already has an acid, and retinol and acids should never be used on the same night; you can use them on different evenings",
     });
   if (pmIds.includes("retinol")) {
     add({
       level: "ask",
       category: "routine",
       ingredients: acids,
-      because: "your evening routine already has retinol, and retinol and acids should never be used on the same night",
+      because: "your evening routine already has retinol, and retinol and acids should never be used on the same night; you can use them on different evenings",
     });
     add({
       level: "ask",
@@ -274,7 +274,10 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
     }
   }
   const reasons = [...merged.values()];
-  for (const r of reasons) r.text = `Contains ${list(r.ingredients)}. ${r.because.map((b) => `${cap(b)}.`).join(" ")}`;
+  for (const r of reasons) {
+    const patch = r.level === "ask" && r.categories.some((c) => c === "sensitive" || c === "skin");
+    r.text = `Contains ${list(r.ingredients)}. ${r.because.map((b) => `${cap(b)}.`).join(" ")}${patch ? " Try a small patch test for 2-3 days first." : ""}`;
+  }
   reasons.sort((a, b) => (a.level === b.level ? 0 : a.level === "skip" ? -1 : 1));
 
 
@@ -299,7 +302,7 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
   } else {
     verdict = "match";
     headline = "Good match";
-    summary = "Nothing in this ingredient list conflicts with what you told us.";
+    summary = "Nothing in this ingredient list conflicts with what you told us. We can\u0027t see amounts or how you use it.";
   }
 
   return { verdict, headline, summary, reasons, fits, notes: [...new Set(notes)], unrecognised, recognisedShare };
