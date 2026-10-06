@@ -9,7 +9,15 @@ import {
   PREFERENCE_CHOICES,
   type GroupId,
 } from "@/lib/knowledge-base";
-import { EMPTY_PROFILE, SAMPLE_PROFILE, clearProfile, loadProfile, saveProfile, type Profile } from "@/lib/profile";
+import {
+  EMPTY_PROFILE,
+  SAMPLE_PROFILE,
+  USING_CHOICES,
+  clearProfile,
+  loadProfile,
+  saveProfile,
+  type Profile,
+} from "@/lib/profile";
 import { WARNING_SIGNS } from "@/lib/routine-rules";
 
 export const Route = createFileRoute("/profile")({
@@ -198,6 +206,28 @@ function ProfilePage() {
                   </label>
                 ))}
               </div>
+            </fieldset>
+
+            <fieldset className="rounded-3xl border border-border bg-card p-5">
+              <legend className="px-2 text-sm font-medium text-foreground">What I already use on my skin</legend>
+              <p className="mb-2 text-xs text-muted-foreground">
+                Tick what you really use today. The product check counts only these, and your confirmed basket, when it looks
+                for clashes and for "one new active at a time". The suggested routine is only a suggestion and does not count.
+              </p>
+              {USING_CHOICES.map((u) => (
+                <label key={u.id} className="flex items-center gap-3 py-1 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={profile.using.includes(u.id)}
+                    onChange={() => update({ ...profile, using: toggle(profile.using, u.id) })}
+                  />
+                  {u.label}
+                </label>
+              ))}
+              <label className="flex items-center gap-3 py-1 text-sm text-foreground">
+                <input type="checkbox" checked={profile.using.length === 0} onChange={() => update({ ...profile, using: [] })} />
+                None of these
+              </label>
             </fieldset>
 
             <fieldset className="rounded-3xl border border-border bg-card p-5">

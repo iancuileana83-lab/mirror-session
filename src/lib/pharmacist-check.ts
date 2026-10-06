@@ -25,7 +25,7 @@ import {
 } from "./knowledge-base";
 import { isCommonIngredient } from "./common-ingredients";
 import type { Profile } from "./profile";
-import { MAX_ACTIVES, RULES, buildRoutine } from "./routine-rules";
+import { MAX_ACTIVES, RULES } from "./routine-rules";
 import { CONCERNS, type Scores } from "./skin-concerns";
 
 export type Verdict = "match" | "ask" | "skip" | "unmatched";
@@ -70,7 +70,25 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 type Finding = { level: Level; category: Category; ingredients: string[]; because: string };
 
-export function runCheck(ingredients: string[], profile: Profile, scores: Scores | null): CheckResult {
+/** Active groups: used for the clash rules and kept with a confirmed basket. */
+export const ACTIVE_GROUP_IDS: GroupId[] = ["retinoids", "aha", "bha", "vitamin_c", "azelaic", "benzoyl_peroxide"];
+
+export function activeGroupsOf(ingredients: string[]): GroupId[] {
+  const groups = new Set(classify(ingredients).flatMap((h) => h.groups));
+  return ACTIVE_GROUP_IDS.filter((g) => groups.has(g));
+}
+
+/** A product in the confirmed basket, as far as the clash rules need it. */
+export type BasketActive = { ingredients: string[]; actives: GroupId[] };
+
+const sameList = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+
+export function runCheck(
+  ingredients: string[],
+  profile: Profile,
+  scores: Scores | null,
+  basket: BasketActive[] = [],
+): CheckResult {
   const hits = classify(ingredients);
   const byGroup = new Map<GroupId, string[]>();
   for (const h of hits) for (const g of h.groups) byGroup.set(g, [...(byGroup.get(g) ?? []), h.ingredient]);
@@ -219,56 +237,86 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
     notes.push("No skin scan yet, so the fit with your skin results was not checked.");
   }
 
-  // 7. Routine: clashes with the routine built from the scan and the profile
-  const routine = buildRoutine(scores ?? {}, {
-    pregnantOrBreastfeeding: profile.pregnantOrBreastfeeding,
-    sensitive: profile.sensitiveSkin,
-    painfulLesions: profile.painfulLesions,
-    changingMole: profile.changingMole,
-    noImprovement: profile.noImprovement,
-  });
-  const routineActives = [...routine.am, ...routine.pm].filter((s) => s.ingredient.active);
-  const pmIds = routine.pm.map((s) => s.ingredient.id);
+  // 7. Routine clashes: only against what the person ticked as already using, plus the confirmed
+  //    basket. The suggested routine is a suggestion and never counts as "already used".
   const retinol = found("retinoids");
   const acids = foundAny(["aha", "bha", "azelaic"]);
   const productActives = foundAny(["retinoids", "aha", "bha", "vitamin_c", "azelaic", "benzoyl_peroxide"]);
 
-  if (routine.paused)
+  type Planned = { id: "retinol" | "acid" | "vitamin_c" | "azelaic" | "benzoyl_peroxide" | "prescription_cream"; source: string };
+  const planned: Planned[] = profile.using.map((id) => ({ id, source: "you already use it" }));
+  for (const b of basket) {
+    if (sameList(b.ingredients, ingredients)) continue; // the product being checked is not its own clash
+    for (const g of b.actives) {
+      const id = g === "retinoids" ? "retinol" : g === "aha" || g === "bha" ? "acid" : (g as Planned["id"]);
+      planned.push({ id, source: "it is in your confirmed basket" });
+    }
+  }
+  const has = (...ids: Planned["id"][]) => planned.filter((p) => ids.includes(p.id));
+  const sourceOf = (ps: Planned[]) => (ps.some((p) => p.source === "you already use it") ? "you already use" : "your confirmed basket has");
+  const nameOf = (id: Planned["id"]) =>
+    ({ retinol: "retinol", acid: "an exfoliating acid", vitamin_c: "vitamin C", azelaic: "azelaic acid", benzoyl_peroxide: "benzoyl peroxide", prescription_cream: "a prescription cream" })[id];
+  const paused = profile.painfulLesions || profile.changingMole || profile.noImprovement;
+  const DIFFERENT_EVENINGS = "retinol and acids should never be used on the same night; you can use them on different evenings";
+
+  if (paused)
     add({
       level: "ask",
       category: "routine",
       ingredients: productActives,
       because: "you reported a sign that pauses actives, so only a basic routine is advised until you have seen someone",
     });
-  if (pmIds.includes("salicylic") || pmIds.includes("azelaic"))
+  const plannedAcid = has("acid", "azelaic");
+  if (plannedAcid.length)
     add({
       level: "ask",
       category: "routine",
       ingredients: retinol,
-      because: "your evening routine already has an acid, and retinol and acids should never be used on the same night; you can use them on different evenings",
+      because: `${sourceOf(plannedAcid)} ${nameOf(plannedAcid[0].id)}, and ${DIFFERENT_EVENINGS}`,
     });
-  if (pmIds.includes("retinol")) {
+  const plannedRetinol = has("retinol");
+  if (plannedRetinol.length) {
     add({
       level: "ask",
       category: "routine",
       ingredients: acids,
-      because: "your evening routine already has retinol, and retinol and acids should never be used on the same night; you can use them on different evenings",
+      because: `${sourceOf(plannedRetinol)} retinol, and ${DIFFERENT_EVENINGS}`,
     });
     add({
       level: "ask",
       category: "routine",
       ingredients: retinol,
-      because: "your routine already has retinol; two retinol products would add up",
+      because: `${sourceOf(plannedRetinol)} retinol; two retinol products would add up`,
     });
   }
-  if (!routine.paused && routineActives.length >= MAX_ACTIVES)
+  const plannedAcidOnly = has("acid");
+  if (plannedAcidOnly.length)
+    add({
+      level: "ask",
+      category: "routine",
+      ingredients: foundAny(["aha", "bha"]),
+      because: `${sourceOf(plannedAcidOnly)} an exfoliating acid; two acids would add up, so introduce one at a time`,
+    });
+  const plannedRx = has("prescription_cream");
+  if (plannedRx.length)
+    add({
+      level: "ask",
+      category: "routine",
+      ingredients: foundAny(["retinoids", "aha", "bha", "benzoyl_peroxide"]),
+      because: `${sourceOf(plannedRx)} a prescription cream, and we do not know which one; ask which actives go with it`,
+    });
+  const plannedKinds = new Set(planned.map((p) => p.id));
+  if (!paused && plannedKinds.size >= MAX_ACTIVES)
     add({
       level: "ask",
       category: "routine",
       ingredients: productActives,
-      because: `your routine already has ${routineActives.length} active ingredients; introduce one new active at a time`,
+      because: `${sourceOf(planned)} ${plannedKinds.size} active products (${[...plannedKinds].map(nameOf).join(", ")}); introduce one new active at a time`,
     });
-
+  if (profile.using.length === 0 && basket.length === 0)
+    notes.push("Clashes with your routine were checked only against what you tick as already using (nothing ticked) and your confirmed basket.");
+  else
+    notes.push("Clashes with your routine were checked only against what you tick as already using and your confirmed basket.");
   // Soft note, independent of the profile: common irritants. The verdict is not changed by it.
   const soft: string[] = [];
   const irritantGroups: Array<[GroupId, string]> = [["fragrance", "fragrance"], ["essential_oils", "essential oils"], ["citrus_extracts", "citrus extracts"]];

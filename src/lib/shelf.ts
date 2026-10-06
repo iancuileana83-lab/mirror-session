@@ -24,8 +24,8 @@ export const MAX_SHELF = 4;
 export type Basket = {
   /** ISO date the user confirmed it. */
   confirmedOn: string;
-  buyNow: Array<{ name: string; kind: ProductKind; why: string; tip: string }>;
-  later: Array<{ name: string; kind: ProductKind; why: string; tip: string }>;
+  buyNow: Array<{ name: string; kind: ProductKind; why: string; tip: string; ingredients: string[]; actives: string[] }>;
+  later: Array<{ name: string; kind: ProductKind; why: string; tip: string; ingredients: string[]; actives: string[] }>;
 };
 
 const SHELF_KEY = "cc:shelf:v1";

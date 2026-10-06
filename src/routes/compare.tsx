@@ -22,7 +22,7 @@ import {
 } from "@/lib/shelf";
 import { evaluate, proposeBasket, type Line } from "@/lib/shopping-agent";
 import { DEMO_SCORES } from "@/lib/demo";
-import type { Verdict } from "@/lib/pharmacist-check";
+import { activeGroupsOf, type Verdict } from "@/lib/pharmacist-check";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -106,7 +106,7 @@ function ComparePage() {
   };
 
   const confirm = () => {
-    const toLines = (ls: Line[]) => ls.map((l) => ({ name: l.item.name, kind: l.item.kind, why: l.why, tip: l.tip }));
+    const toLines = (ls: Line[]) => ls.map((l) => ({ name: l.item.name, kind: l.item.kind, why: l.why, tip: l.tip, ingredients: l.item.ingredients, actives: activeGroupsOf(l.item.ingredients) }));
     const b: Basket = {
       confirmedOn: new Date().toISOString().slice(0, 10),
       buyNow: toLines(proposal.buyNow),

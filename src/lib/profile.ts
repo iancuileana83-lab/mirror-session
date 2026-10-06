@@ -2,6 +2,18 @@
 
 import type { GroupId } from "./knowledge-base";
 
+/** What the person says they already use. Only these (and a confirmed basket) count for routine clashes. */
+export type UsingId = "retinol" | "acid" | "vitamin_c" | "azelaic" | "benzoyl_peroxide" | "prescription_cream";
+
+export const USING_CHOICES: Array<{ id: UsingId; label: string }> = [
+  { id: "retinol", label: "Retinol or another retinoid" },
+  { id: "acid", label: "An exfoliating acid (AHA or BHA, such as glycolic, lactic or salicylic acid)" },
+  { id: "vitamin_c", label: "Vitamin C" },
+  { id: "azelaic", label: "Azelaic acid" },
+  { id: "benzoyl_peroxide", label: "Benzoyl peroxide" },
+  { id: "prescription_cream", label: "A prescription cream or gel for the skin" },
+];
+
 export type Profile = {
   pregnantOrBreastfeeding: boolean;
   sensitiveSkin: boolean;
@@ -11,6 +23,8 @@ export type Profile = {
   customAvoid: string[];
   /** Ids from MEDICINES. */
   medicines: string[];
+  /** What the person already uses on the skin (empty = none). */
+  using: UsingId[];
   /** User-reported warning signs: any of these pauses actives. */
   painfulLesions: boolean;
   changingMole: boolean;
@@ -23,6 +37,7 @@ export const EMPTY_PROFILE: Profile = {
   avoid: [],
   customAvoid: [],
   medicines: [],
+  using: [],
   painfulLesions: false,
   changingMole: false,
   noImprovement: false,
@@ -34,6 +49,7 @@ export const SAMPLE_PROFILE: Profile = {
   sensitiveSkin: true,
   avoid: ["fragrance", "nuts", "silicones"],
   medicines: ["tetracyclines"],
+  using: ["benzoyl_peroxide"],
 };
 
 const KEY = "cc:profile:v1";

@@ -79,7 +79,7 @@ function RoutinePage() {
         </h1>
         <p className="mt-3 text-base text-muted-foreground">
           Built from your scan with fixed rules, not guesses. Active ingredients only, no brands.
-          Each step says why. Not medical advice.
+          Each step says why. It is a suggestion only: the product check counts only what you tick as already using. Not medical advice.
         </p>
 
         {!routine ? (

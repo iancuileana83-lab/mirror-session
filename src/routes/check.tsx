@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CircleAlert, CircleCheck, CircleHelp, CircleX } from "lucide-react";
 import { loadProduct, type Product } from "@/lib/product";
+import { loadBasket } from "@/lib/shelf";
 import { EMPTY_PROFILE, SAMPLE_PROFILE, loadProfile, saveProfile, type Profile } from "@/lib/profile";
 import { loadSkin } from "@/lib/mirror-session";
-import { runCheck, type Category, type Verdict } from "@/lib/pharmacist-check";
+import { runCheck, type BasketActive, type Category, type Verdict } from "@/lib/pharmacist-check";
 import type { Scores } from "@/lib/skin-concerns";
 
 export const Route = createFileRoute("/check")({
@@ -41,18 +42,22 @@ function CheckPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [profile, setProfile] = useState<Profile>(EMPTY_PROFILE);
   const [scores, setScores] = useState<Scores | null>(null);
+  const [basketActives, setBasketActives] = useState<BasketActive[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setProduct(loadProduct());
     setProfile(loadProfile());
     setScores((loadSkin()?.scores as Scores | undefined) ?? null);
+    setBasketActives(
+      (loadBasket()?.buyNow ?? []).map((b) => ({ ingredients: b.ingredients ?? [], actives: (b.actives ?? []) as BasketActive["actives"] })),
+    );
     setReady(true);
   }, []);
 
   const result = useMemo(
-    () => (product ? runCheck(product.ingredients, profile, scores) : null),
-    [product, profile, scores],
+    () => (product ? runCheck(product.ingredients, profile, scores, basketActives) : null),
+    [product, profile, scores, basketActives],
   );
 
   const useSampleProfile = () => {
