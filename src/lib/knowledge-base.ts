@@ -1,4 +1,4 @@
-// Knowledge base for the pharmacist check. Rules decided by the pharmacist; nothing here is medical advice.
+// Knowledge base for the pharmacist check. Rules decided by the author (twenty years in community pharmacies, not a licensed pharmacist); nothing here is medical advice.
 // Generic names only, no brands. Matching is by INCI name (the ingredient list on a label).
 // Labels list ingredients in order of amount but not the percentage: the check can say an
 // ingredient is present, never how much.

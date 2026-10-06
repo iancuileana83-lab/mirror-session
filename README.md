@@ -3,7 +3,7 @@
 **Your pharmacist, right before you buy.** Check a skincare or makeup product against your skin,
 your medicines and your allergies before it goes in the basket.
 
-Made by a former community pharmacist (20 years of practice) for the YouCam API Skin AI &
+Made by someone who worked in community pharmacies for twenty years (not a licensed pharmacist) for the YouCam API Skin AI &
 eCommerce VTO Hackathon. Formerly "Mirror Session".
 
 > Not medical advice. Counter Check does not diagnose or treat anything. When in doubt, ask your

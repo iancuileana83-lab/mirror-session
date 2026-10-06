@@ -1,7 +1,7 @@
 // The shopping agent: compares up to three checked products and PROPOSES a basket.
 // Rules only, no AI. It never saves or acts: the user must confirm, edit or decline.
 // Principles: never put a "Better to skip" or unmatched product in the basket; "Check first"
-// products wait for the pharmacist; one product per type; one new active at a time.
+// products wait for the user's pharmacist or doctor; one product per type; one new active at a time.
 
 import { classify } from "./knowledge-base";
 import type { Profile } from "./profile";
@@ -23,7 +23,7 @@ export type Line = { item: ShelfItem; why: string; /** One short usage tip, like
 export type Proposal = {
   buyNow: Line[];
   later: Line[];
-  /** "Check first": waiting for the pharmacist. */
+  /** "Check first": waiting for the user's pharmacist or doctor. */
   waitFirst: Line[];
   /** "Better to skip" or not matched. */
   leaveOut: Line[];
@@ -32,7 +32,7 @@ export type Proposal = {
 
 const ACTIVE_GROUPS = ["retinoids", "aha", "bha", "vitamin_c", "azelaic", "benzoyl_peroxide"] as const;
 
-/** One short usage tip, like at the pharmacy counter. Draft for the pharmacist to review. */
+/** One short usage tip, like at the pharmacy counter. Draft for the author to review. */
 export function usageTip(item: ShelfItem): string {
   const groups = new Set(classify(item.ingredients).flatMap((h) => h.groups));
   const tips: string[] = [];

@@ -27,7 +27,7 @@ function Index() {
 
       <div className="max-w-2xl text-center">
         <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
-          Made by a former community pharmacist
+          Made by someone with twenty years in community pharmacies
         </span>
 
         <h1 className="font-heading text-5xl leading-tight tracking-tight text-foreground sm:text-6xl md:text-7xl">

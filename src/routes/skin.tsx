@@ -6,6 +6,7 @@ import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-sessi
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
 import { SAMPLE_FACE_LABEL, loadSampleFace } from "@/lib/sample-face";
 import { addScan } from "@/lib/history";
+import { normalizeFaceImage } from "@/lib/image-utils";
 import { DEMO_SCORES, SAMPLE_FACE_SCORES } from "@/lib/demo";
 import { isLimitError, limitMessage } from "@/lib/limit-messages";
 import { BAND_LABEL, CONCERNS, bandOf, rankConcerns, type Scores } from "@/lib/skin-concerns";
@@ -60,7 +61,8 @@ function SkinAnalysis() {
     setResults(null);
     setErrorMsg(null);
     try {
-      const url = await fileToDataUrl(file);
+      // YouCam wants a short side of at least 1080 px and at most 2560 on the long side.
+      const url = await normalizeFaceImage(await fileToDataUrl(file));
       setDataUrl(url);
       saveFace({ dataUrl: url });
     } catch {

@@ -8,7 +8,7 @@ API units valid until **2027-01-03**.
 
 > Read this file at the start of every work session. Tick boxes and update the status table as you go.
 > Lovable syncs from `main`: never rewrite pushed history (see AGENTS.md). Nothing is pushed yet.
-> **Nothing below is built until the pharmacist approves this plan.**
+> **Nothing below is built until the author approves this plan.**
 
 ## Idea
 
@@ -18,7 +18,7 @@ before it goes in the basket.
 1. **Scan your face** with YouCam Skin AI (12 concerns, plain words).
 2. **Photo of a product's ingredient label** (INCI list). Gemini is used **only to transcribe** the
    list into text, never to judge or advise. The user can correct the text before it is checked.
-3. **Pharmacist check** (fixed rules written and reviewed by the pharmacist, no AI): does the product
+3. **Pharmacist check** (fixed rules written and reviewed by the author, no AI): does the product
    fit the skin results, clash with the user's routine, with medicines they list (e.g. photosensitising
    drugs such as doxycycline, or isotretinoin: daily SPF, no strong exfoliants), with pregnancy or
    breastfeeding, or with their allergy/intolerance profile (fragrance, specific preservatives,
@@ -29,7 +29,7 @@ before it goes in the basket.
 
 Later, only if time allows: cheaper alternative with the same actives; pharmacy QR handoff; photo-quality coach.
 
-Author: a former community pharmacist (20 years). **No diagnosis, no medical advice.**
+Author: worked in community pharmacies for twenty years (not a licensed pharmacist). **No diagnosis, no medical advice.**
 All products and labels in the app, demo and video are **fictional** (no real brands).
 
 ## Mandatory competition rules (checklist)
@@ -54,12 +54,12 @@ All products and labels in the app, demo and video are **fictional** (no real br
 | API-key handling (server-side only, `.env` ignored, `.env.example`) | `src/lib/*.functions.ts`, `.gitignore` | Same pattern for the Gemini key |
 | README, MIT license, build, TanStack Start + Tailwind + shadcn setup | repo root | Rewritten README |
 | Clothes Virtual Try-On | `src/lib/cloth-tryon.functions.ts`, `/outfit` | Dropped from the main flow; kept in the code only if spare time (the focus is makeup VTO) |
-| Event picker, "coherence score", live camera page | `/prepare`, `/result`, `/session` | **Removed** (no pharmacist value) |
+| Event picker, "coherence score", live camera page | `/prepare`, `/result`, `/session` | **Removed** (no value for the check) |
 
 ## Plan (Oct 6 – Nov 1)
 
 New data stays on the device (localStorage): profile, scans, checked products. Every phase ends with
-build + typecheck + a browser test; phases marked **REVIEW** stop for the pharmacist.
+build + typecheck + a browser test; phases marked **REVIEW** stop for the author.
 
 | # | Dates | Phase | Result |
 |---|-------|-------|--------|
@@ -68,7 +68,7 @@ build + typecheck + a browser test; phases marked **REVIEW** stop for the pharma
 | 3 | Oct 12–16 | **Label reader (Gemini, transcription only)** | Server function: label photo → ingredient list as JSON with a strict prompt ("transcribe, do not interpret"); the user sees and edits the text before checking; honest note that INCI order, not percentages, is all a label gives. Fictional sample labels (generated images) for the demo. Gemini key server-side from `.env`. |
 | 4 | Oct 16–20 | **Pharmacist check engine + verdict screen** | Deterministic rules: fits skin results? clashes with routine (combos from our rules)? medicine flags? pregnancy/breastfeeding? allergy match? Verdict cards ("fits / check with your pharmacist / better to skip"), each with the reason; fixed wording "ask your pharmacist or doctor"; unknown ingredients are listed, never guessed. **REVIEW: wording and verdict thresholds.** |
 | 5 | Oct 20 | **Decision: hosting** (Cloud Run; the Lovable credits are used up). Needs to be fixed by now to leave time for deploy and testing. | |
-| 6 | Oct 20–23 | **Makeup Virtual Try-On (YouCam)** | First verify the makeup VTO endpoint and our units; then try-on for fictional foundation/lipstick shades on the user's scan photo, before the check/basket. If the endpoint is not usable on our key: fall back to the clothes VTO already built, and tell the pharmacist at once. |
+| 6 | Oct 20–23 | **Makeup Virtual Try-On (YouCam)** | First verify the makeup VTO endpoint and our units; then try-on for fictional foundation/lipstick shades on the user's scan photo, before the check/basket. If the endpoint is not usable on our key: fall back to the clothes VTO already built, and tell the author at once. |
 | 7 | Oct 23–26 | **Shopping agent** | Compare 2–3 checked products side by side (fit, flags, shade preview), proposes a basket with the reasons; **nothing is saved or "bought" until the user confirms**; edit/decline always possible; rules-only, no AI model. |
 | 8 | Oct 26–28 | **"Is it working?"** | Save each scan; re-scan prompt after 4–6 weeks (date saved after confirmation); honest comparison per concern, including "no clear change", with fair-comparison tips (same light, no makeup). Demo data for judges so the screen is not empty. |
 | 9 | Oct 28–30 | **Judge access and deploy** | Sample photos and sample labels, per-visitor and daily caps with a friendly "saved example" fallback, deploy to the chosen host, test on a clean browser and phone, keys only in host secrets. Fix the existing `tsc` errors (`outfit.tsx`, `__root.tsx`). |
@@ -99,15 +99,15 @@ build + typecheck + a browser test; phases marked **REVIEW** stop for the pharma
 | Earlier work (before the change of direction): README, MIT license, `.env` handling, 12-concern skin scan, reviewed routine/safety rules, real scan tested | done, committed locally (not pushed) |
 | Oct 6 probe: makeup Virtual Try-On endpoint (`POST /s2s/v2.0/task/makeup-vto`) | **works on our key** (task accepted; a bad test image failed with no unit used; 1 unit per successful try-on; needs `src_file_url` public URL or file upload via `/s2s/v2.0/file`, to confirm in phase 6) |
 | 1 | done: new home and name, old event pages removed (clothes try-on code kept), sample face button on the scan page (drawn face), README rewritten, `tsc` clean, build passes |
-| 2 | done: `/profile` page (stored in the browser) and the reviewed knowledge base `src/lib/knowledge-base.ts`, shown on `/rules` (ingredient groups incl. citrus extracts, plant extracts, Compositae, propolis, colophonium, nuts+shea; 12 medicines and their effects; pregnancy/breastfeeding, sensitive-skin and allergy-profile flags; preferences kept apart from allergies). Pharmacist review applied Oct 7. |
+| 2 | done: `/profile` page (stored in the browser) and the reviewed knowledge base `src/lib/knowledge-base.ts`, shown on `/rules` (ingredient groups incl. citrus extracts, plant extracts, Compositae, propolis, colophonium, nuts+shea; 12 medicines and their effects; pregnancy/breastfeeding, sensitive-skin and allergy-profile flags; preferences kept apart from allergies). Author review applied Oct 7. |
 | 3 | done: `/product` label reader (Gemini transcription only; default model gemini-3.5-flash because 2.5-flash is closed to new keys; photo shrunk in the browser, strict transcribe-only prompt, JSON schema output, editable text, paste fallback, fictional sample label; only label photos are sent, never face photos). Tested: 15 of 15 ingredients copied exactly. |
 | 4 | done (reviewed and approved Oct 7; wording additions applied): `src/lib/pharmacist-check.ts` (fixed rules, three levels, strictest flag decides, preferences cap at Check first, honest "couldn't match" state when under half of the ingredients are known) and `/check`. Profile now also holds the warning signs; sample profile and sample label for judges. |
 | 5 | hosting decided Oct 7: **Google Cloud Run**, keys in Secret Manager, strict limits. Dockerfile, .dockerignore and DEPLOY.md written (commands only, **nothing run in Google Cloud**; waiting for your OK). Node server build tested locally. |
-| 6 | done (tested by the pharmacist on a real-looking photo, lipstick natural, only lips changed): `/tryon` (YouCam makeup try-on: lipstick and foundation, fictional shade names, before/after; `src/lib/makeup-tryon.functions.ts`, shared helpers `src/lib/youcam-http.ts`). Works end to end on the sample face (1 unit). |
+| 6 | done (tested by the author on a real-looking photo, lipstick natural, only lips changed): `/tryon` (YouCam makeup try-on: lipstick and foundation, fictional shade names, before/after; `src/lib/makeup-tryon.functions.ts`, shared helpers `src/lib/youcam-http.ts`). Works end to end on the sample face (1 unit). |
 | 7 | built, **waiting for your test**: `/compare` (up to 3 products, verdict per product, the coach proposes buy now / later / check first / leave out with reasons; one product per type, one new active at a time; saves nothing until Confirm; confirmed list can be printed; 3 fictional sample products). Rules in `src/lib/shopping-agent.ts`. |
 | 7b | improvements from your test applied: why a product fits (ingredient + scan result), one usage tip per basket product, soft irritant note, demo loads 4 sample products + sample profile + fictional scan (so Now, Later, Check first and Skip all show; MAX 4 products) |
 | 8 | built, **waiting for your test**: `/progress` (\"Is it working?\"): every scan saves its scores (not photos); honest comparison of two scans with a 10-point threshold for a clear change, timing advice (4-6 weeks), fair-comparison tips; the coach proposes the next check-in (4 weeks after the last scan) and saves it only after Confirm; optional .ics reminder; demo of two fictional scans 5 weeks apart. |
-| 8b | done: the pharmacist approved the 10-point threshold and wording; clash rules now use only what the user ticks in **What I already use** plus the confirmed basket (suggested routine never counts); demo profile ticks benzoyl peroxide so Later still shows. |
+| 8b | done: the author approved the 10-point threshold and wording; clash rules now use only what the user ticks in **What I already use** plus the confirmed basket (suggested routine never counts); demo profile ticks benzoyl peroxide so Later still shows. |
 | 9 | built, **waiting for your OK on DEPLOY.md**: server limits per visitor and per day for scan, label and try-on (in memory per instance, tested with simulated time), DEMO_LOCKDOWN pause switch, friendly fallbacks with saved examples, README section for judges. Hosting steps in DEPLOY.md (nothing run in Google Cloud). |
 | 9b | the sample face is now an AI-generated face (StyleGAN2, thispersondoesnotexist.com, not a real person; file `public/examples/sample-face.jpg`, enlarged to 1200 px in the browser because YouCam wants a short side of at least 1080). Tested with 2 YouCam units: the sample scan returns 12 concerns; the Rosewood lipstick lands exactly on the lips. The saved example (`public/examples/tryon-example.jpg`, 90 KB) is that result and is shown, labelled, when the try-on limit is hit. (The earlier cartoon face made YouCam put lipstick on the nose and was dropped.) DEPLOY.md step 0 run (read-only): no name clashes, APIs already enabled; cleanup only after the winners are announced. |
 | Deploy | **live** (Oct 6): https://counter-check-v4fk5lvbla-ez.a.run.app on Cloud Run, service `counter-check`, own service account and secrets, max 2 instances, public invoker for this service only. DEPLOY.md steps 2-5 done; all 9 pages and both example images 200; live sample scan (12 concerns) and label reader (15 of 15 ingredients) tested. Not yet done: budget alert (step 6, needs BILLING_ID), phone/clean-browser test, video, Devpost. |

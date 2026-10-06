@@ -1,7 +1,7 @@
 // Plain-language description of each YouCam skin concern.
 // YouCam scores run 1-100 and HIGHER IS BETTER for every concern (per the API docs),
 // so a low score means more visible signs of that concern.
-// This is a cosmetic reading of a photo, not a diagnosis. Texts are for pharmacist review.
+// This is a cosmetic reading of a photo, not a diagnosis. Texts are for the author's review.
 
 export type ConcernId =
   | "moisture"

@@ -1,6 +1,6 @@
 // Common, mostly plain cosmetic ingredients. They carry no rule of their own; they only tell the
 // check how much of a list it recognises, so it can say "we couldn't match these ingredients"
-// instead of a misleading "Good match". Draft for the pharmacist to extend.
+// instead of a misleading "Good match". Draft for the author to extend.
 
 const NAMES = [
   "aqua", "water", "eau", "glycerin", "glycerol", "butylene glycol", "pentylene glycol", "propanediol",

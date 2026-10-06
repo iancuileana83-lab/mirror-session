@@ -1,5 +1,5 @@
 // DRAFT rules for the skin routine. Deterministic: same scan in, same routine out.
-// Written as a first draft for pharmacist review. Nothing here is medical advice.
+// Written as a first draft for the author's review. Nothing here is medical advice.
 // Ingredients only, no brand names. Scores come from YouCam (1-100, higher = healthier).
 
 import type { ConcernId, Scores } from "./skin-concerns";
