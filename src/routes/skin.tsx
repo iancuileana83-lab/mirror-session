@@ -1,10 +1,11 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Upload, Sparkles, X, Loader2 } from "lucide-react";
 import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-session";
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
 import { makeSampleFace } from "@/lib/sample-face";
+import { addScan } from "@/lib/history";
 import { BAND_LABEL, CONCERNS, bandOf, rankConcerns, type Scores } from "@/lib/skin-concerns";
 
 const bandLabel = (s?: number) => (typeof s === "number" ? BAND_LABEL[bandOf(s)] : "");
@@ -41,6 +42,7 @@ function SkinAnalysis() {
   const [dataUrl, setDataUrl] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [state, setState] = useState<AnalysisState>("idle");
+  const [usedSample, setUsedSample] = useState(false);
   const [results, setResults] = useState<Results | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const analyzeSkinFn = useServerFn(analyzeSkin);
@@ -48,6 +50,7 @@ function SkinAnalysis() {
 
   const handleFile = async (file: File | undefined) => {
     if (!file || !file.type.startsWith("image/")) return;
+    setUsedSample(false);
     const url = URL.createObjectURL(file);
     setPreview(url);
     setState("idle");
@@ -65,6 +68,7 @@ function SkinAnalysis() {
   /** Judge sample mode: a drawn, fictional face (no real person). */
   const useSampleFace = () => {
     const url = makeSampleFace();
+    setUsedSample(true);
     setPreview(url);
     setDataUrl(url);
     setState("idle");
@@ -94,6 +98,7 @@ function SkinAnalysis() {
       const lowest = ranked[0];
       setResults({ scores, saved: true });
       setState("done");
+      addScan(scores, usedSample ? "sample" : "photo");
       saveSkin({
         hydration: bandLabel(scores.moisture),
         texture: bandLabel(scores.texture),
@@ -274,6 +279,11 @@ function SkinAnalysis() {
               className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
             >
               See my routine
+            </Link>
+          )}
+          {results && (
+            <Link to="/progress" className="inline-flex h-11 items-center justify-center rounded-full border border-input bg-background px-8 text-sm font-medium text-foreground transition-colors hover:bg-accent">
+              Is it working?
             </Link>
           )}
         </div>

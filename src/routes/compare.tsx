@@ -21,6 +21,7 @@ import {
   type ShelfItem,
 } from "@/lib/shelf";
 import { evaluate, proposeBasket, type Line } from "@/lib/shopping-agent";
+import { DEMO_SCORES } from "@/lib/demo";
 import type { Verdict } from "@/lib/pharmacist-check";
 
 export const Route = createFileRoute("/compare")({
@@ -43,8 +44,6 @@ const VERDICT_STYLE: Record<Verdict, { label: string; cls: string; Icon: typeof 
   unmatched: { label: "Couldn't match", cls: "bg-muted text-foreground", Icon: CircleHelp },
 };
 
-/** A fictional scan for the demo (not a real person). */
-const DEMO_SCORES: Scores = { moisture: 55, oiliness: 60, texture: 62, pore: 50, redness: 48, acne: 70, dark_circle: 66, age_spot: 55, wrinkle: 72, radiance: 50, firmness: 74, eye_bag: 80 };
 
 function ComparePage() {
   const [shelf, setShelf] = useState<ShelfItem[]>([]);

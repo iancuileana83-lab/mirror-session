@@ -14,6 +14,7 @@ import { Route as CheckRouteImport } from './routes/check'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ProductRouteImport } from './routes/product'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as RoutineRouteImport } from './routes/routine'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -43,6 +44,11 @@ const ProductRoute = ProductRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoutineRoute = RoutineRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
   '/routine': typeof RoutineRoute
   '/rules': typeof RulesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
   '/routine': typeof RoutineRoute
   '/rules': typeof RulesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
   '/routine': typeof RoutineRoute
   '/rules': typeof RulesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/product'
     | '/profile'
+    | '/progress'
     | '/routine'
     | '/rules'
     | '/sitemap.xml'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/product'
     | '/profile'
+    | '/progress'
     | '/routine'
     | '/rules'
     | '/sitemap.xml'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/product'
     | '/profile'
+    | '/progress'
     | '/routine'
     | '/rules'
     | '/sitemap.xml'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   ProductRoute: typeof ProductRoute
   ProfileRoute: typeof ProfileRoute
+  ProgressRoute: typeof ProgressRoute
   RoutineRoute: typeof RoutineRoute
   RulesRoute: typeof RulesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/routine': {
@@ -241,6 +261,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   ProductRoute: ProductRoute,
   ProfileRoute: ProfileRoute,
+  ProgressRoute: ProgressRoute,
   RoutineRoute: RoutineRoute,
   RulesRoute: RulesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
