@@ -21,6 +21,8 @@ import {
   MEDICINES,
   PREGNANCY_FLAGS,
   PREGNANCY_OK_NOTE,
+  SENSITIVE_SKIN_FLAGS,
+  ALLERGY_PROFILE_FLAGS,
   type GroupId,
 } from "@/lib/knowledge-base";
 
@@ -130,6 +132,7 @@ function RulesPage() {
               <li key={g.id} className="rounded-2xl border border-border bg-card p-4">
                 <p className="font-medium text-foreground">{g.label}</p>
                 <p className="text-muted-foreground">{g.about}</p>
+                {g.message && <p className="mt-1">Wording: {g.message}</p>}
                 <p className="mt-1 text-xs text-muted-foreground">
                   Matches: {g.terms.join(", ")}
                   {g.also ? ` (only when the name also contains "${g.also}")` : ""}
@@ -181,6 +184,22 @@ function RulesPage() {
             ))}
           </ul>
           <p className="mt-2">{PREGNANCY_OK_NOTE}</p>
+        </section>
+
+        <section>
+          <h2 className="font-serif text-2xl text-foreground">Product check: sensitive skin and allergy profile</h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {SENSITIVE_SKIN_FLAGS.map((f) => (
+              <li key={`s-${f.group}`}>
+                Sensitive skin, {GROUPS[f.group as GroupId].label}: ask your pharmacist or doctor ({f.why})
+              </li>
+            ))}
+            {ALLERGY_PROFILE_FLAGS.map((f) => (
+              <li key={`a-${f.group}`}>
+                Any allergy listed, {GROUPS[f.group as GroupId].label}: ask your pharmacist or doctor ({f.why})
+              </li>
+            ))}
+          </ul>
         </section>
       </main>
     </div>

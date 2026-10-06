@@ -1,7 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { AVOID_CHOICES, EFFECTS, GROUPS, MEDICINES, type GroupId } from "@/lib/knowledge-base";
+import {
+  ALLERGY_CHOICES,
+  EFFECTS,
+  GROUPS,
+  MEDICINES,
+  PREFERENCE_CHOICES,
+  type GroupId,
+} from "@/lib/knowledge-base";
 import { EMPTY_PROFILE, clearProfile, loadProfile, saveProfile, type Profile } from "@/lib/profile";
 
 export const Route = createFileRoute("/profile")({
@@ -116,7 +123,7 @@ function ProfilePage() {
             <fieldset className="rounded-3xl border border-border bg-card p-5">
               <legend className="px-2 text-sm font-medium text-foreground">Allergies and intolerances (avoid these)</legend>
               <div className="grid gap-x-6 sm:grid-cols-2">
-                {AVOID_CHOICES.map((id: GroupId) => (
+                {ALLERGY_CHOICES.map((id: GroupId) => (
                   <label key={id} className="flex items-start gap-3 py-1 text-sm text-foreground">
                     <input
                       className="mt-1"
@@ -169,6 +176,26 @@ function ProfilePage() {
                     ))}
                   </ul>
                 )}
+              </div>
+            </fieldset>
+
+            <fieldset className="rounded-3xl border border-border bg-card p-5">
+              <legend className="px-2 text-sm font-medium text-foreground">Preferences (not allergies)</legend>
+              <div className="grid gap-x-6 sm:grid-cols-2">
+                {PREFERENCE_CHOICES.map((id: GroupId) => (
+                  <label key={id} className="flex items-start gap-3 py-1 text-sm text-foreground">
+                    <input
+                      className="mt-1"
+                      type="checkbox"
+                      checked={profile.avoid.includes(id)}
+                      onChange={() => update({ ...profile, avoid: toggle(profile.avoid, id) })}
+                    />
+                    <span>
+                      I would rather avoid: {GROUPS[id].label}
+                      <span className="block text-xs text-muted-foreground">{GROUPS[id].about}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
             </fieldset>
 

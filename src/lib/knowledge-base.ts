@@ -1,12 +1,17 @@
-// DRAFT knowledge base for the pharmacist check. Written for review, nothing here is medical advice.
+// Knowledge base for the pharmacist check. Rules decided by the pharmacist; nothing here is medical advice.
 // Generic names only, no brands. Matching is by INCI name (the ingredient list on a label).
-// Labels list ingredients in order of amount but not the percentage: the check can say an ingredient
-// is present, never how much. Every group, medicine and rule below is for the pharmacist to review.
+// Labels list ingredients in order of amount but not the percentage: the check can say an
+// ingredient is present, never how much.
 
 export type GroupId =
   | "fragrance"
   | "essential_oils"
   | "furocoumarin_oils"
+  | "citrus_extracts"
+  | "plant_extracts"
+  | "compositae"
+  | "propolis"
+  | "colophonium"
   | "lanolin"
   | "isothiazolinones"
   | "formaldehyde_releasers"
@@ -16,11 +21,12 @@ export type GroupId =
   | "sulfates"
   | "propylene_glycol"
   | "silicones"
-  | "peanut"
-  | "tree_nuts"
+  | "nuts"
+  | "shea"
   | "wheat"
   | "soy"
   | "uv_filters_chemical"
+  | "scrubs"
   | "retinoids"
   | "aha"
   | "bha"
@@ -34,6 +40,8 @@ export type Group = {
   label: string;
   /** Plain description for the profile page and the rules page. */
   about: string;
+  /** Fixed wording to show when this group is flagged, if it needs more than the label. */
+  message?: string;
   /** Lowercase INCI names or name fragments that put an ingredient in this group. */
   terms: string[];
   /** Match terms anywhere inside the ingredient name instead of as whole words. */
@@ -47,6 +55,7 @@ export const GROUPS: Record<GroupId, Group> = {
     id: "fragrance",
     label: "Fragrance",
     about: "Perfume mixes and the common fragrance allergens that must be listed in the EU.",
+    message: "fragrance allergen (benzyl alcohol may also be a preservative)",
     terms: [
       "parfum", "fragrance", "aroma", "linalool", "limonene", "citronellol", "geraniol", "eugenol",
       "isoeugenol", "coumarin", "citral", "farnesol", "benzyl salicylate", "benzyl alcohol",
@@ -57,12 +66,15 @@ export const GROUPS: Record<GroupId, Group> = {
   essential_oils: {
     id: "essential_oils",
     label: "Essential oils",
-    about: "Plant oils used for scent (lavender, tea tree, peppermint, citrus, rose, ylang ylang, clove and similar).",
+    about: "Plant oils used for scent (lavender, tea tree, peppermint, citrus, ylang ylang, clove and similar). Matches leaf, flower, peel, fruit and other oils.",
     terms: [
-      "lavandula", "melaleuca", "mentha", "eucalyptus", "citrus", "rosa damascena", "cananga",
-      "pelargonium", "cymbopogon", "rosmarinus", "thymus", "origanum", "cinnamomum",
-      "eugenia caryophyllus", "juniperus", "pinus", "boswellia", "santalum", "jasminum",
-      "salvia sclarea", "ocimum", "illicium", "cedrus",
+      "lavandula", "lavender", "melaleuca", "tea tree", "mentha", "peppermint", "spearmint", "eucalyptus",
+      "citrus", "orange", "lemon", "bergamot", "lime", "grapefruit", "neroli", "rosa damascena",
+      "cananga", "ylang", "pelargonium", "geranium", "cymbopogon", "lemongrass", "rosmarinus", "rosemary",
+      "thymus", "thyme", "origanum", "oregano", "cinnamomum", "cinnamon", "eugenia caryophyllus", "clove",
+      "juniperus", "juniper", "pinus", "boswellia", "frankincense", "santalum", "sandalwood", "jasminum",
+      "jasmine", "salvia sclarea", "clary sage", "ocimum", "basil", "illicium", "star anise", "cedrus",
+      "cedarwood", "pogostemon", "patchouli", "vetiveria", "vetiver", "abies",
     ],
     substring: true,
     also: "oil",
@@ -75,6 +87,47 @@ export const GROUPS: Record<GroupId, Group> = {
     substring: true,
     also: "oil",
   },
+  citrus_extracts: {
+    id: "citrus_extracts",
+    label: "Citrus extracts (lemon, bergamot, lime, orange peel)",
+    about: "Citrus peel and fruit extracts can make skin more sensitive to sunlight.",
+    terms: [
+      "citrus limon", "citrus aurantifolia", "citrus aurantium", "citrus sinensis", "citrus reticulata",
+      "citrus paradisi", "bergamot", "lemon", "lime", "orange", "grapefruit", "mandarin",
+    ],
+  },
+  plant_extracts: {
+    id: "plant_extracts",
+    label: "Plant extracts",
+    about: "Any ingredient called an extract (mostly plants). Only flagged for sensitive skin or if you listed an allergy.",
+    terms: ["extract"],
+    substring: true,
+  },
+  compositae: {
+    id: "compositae",
+    label: "Compositae plants (chamomile, arnica, calendula)",
+    about: "The daisy family: chamomile, arnica, calendula, echinacea, yarrow, tansy, dandelion and relatives. A common cause of plant allergy. Refined sunflower and safflower oils are not counted.",
+    terms: [
+      "anthemis", "chamomilla", "matricaria", "chamaemelum", "chamomile", "arnica", "calendula",
+      "echinacea", "achillea", "tanacetum", "artemisia", "bellis perennis", "inula", "taraxacum",
+      "chrysanthemum", "cynara", "silybum", "centaurea",
+    ],
+    substring: true,
+  },
+  propolis: {
+    id: "propolis",
+    label: "Propolis",
+    about: "A bee product; a known contact allergen.",
+    terms: ["propolis"],
+    substring: true,
+  },
+  colophonium: {
+    id: "colophonium",
+    label: "Colophonium (rosin)",
+    about: "Pine resin and its derivatives; a known contact allergen.",
+    terms: ["colophonium", "rosin", "rosinate", "abietic acid", "abietate"],
+    substring: true,
+  },
   lanolin: {
     id: "lanolin",
     label: "Lanolin (wool wax)",
@@ -84,8 +137,8 @@ export const GROUPS: Record<GroupId, Group> = {
   },
   isothiazolinones: {
     id: "isothiazolinones",
-    label: "Isothiazolinone preservatives",
-    about: "Preservatives (such as methylisothiazolinone) that are common causes of contact allergy.",
+    label: "MI / MCI (methylisothiazolinone, methylchloroisothiazolinone) and related",
+    about: "Preservatives that are among the most common causes of contact allergy. Also catches benzisothiazolinone and octylisothiazolinone.",
     terms: ["methylisothiazolinone", "methylchloroisothiazolinone", "benzisothiazolinone", "octylisothiazolinone"],
   },
   formaldehyde_releasers: {
@@ -130,22 +183,25 @@ export const GROUPS: Record<GroupId, Group> = {
   silicones: {
     id: "silicones",
     label: "Silicones",
-    about: "Smoothing ingredients (dimethicone, siloxanes). Not an allergy for most people; some prefer to avoid them.",
+    about: "Smoothing ingredients (dimethicone, siloxanes). A preference, not an allergy.",
     terms: ["dimethicone", "dimethiconol", "cyclomethicone", "trimethicone", "siloxane", "silicone"],
     substring: true,
   },
-  peanut: {
-    id: "peanut",
-    label: "Peanut",
-    about: "Peanut oil and peanut-derived ingredients.",
-    terms: ["arachis hypogaea", "peanut"],
+  nuts: {
+    id: "nuts",
+    label: "Nuts (peanut and tree nuts)",
+    about: "Peanut, almond, hazelnut, walnut, macadamia, pistachio oils and extracts. If you avoid nuts, shea butter is flagged too.",
+    terms: [
+      "arachis hypogaea", "peanut", "prunus amygdalus", "almond", "corylus avellana", "hazelnut",
+      "juglans regia", "walnut", "macadamia", "pistacia vera", "pistachio",
+    ],
     substring: true,
   },
-  tree_nuts: {
-    id: "tree_nuts",
-    label: "Tree nuts",
-    about: "Almond, hazelnut, walnut, macadamia and similar nut oils and extracts.",
-    terms: ["prunus amygdalus", "almond", "corylus avellana", "hazelnut", "juglans regia", "walnut", "macadamia", "pistacia vera", "pistachio"],
+  shea: {
+    id: "shea",
+    label: "Shea butter",
+    about: "Flagged only when you avoid nuts.",
+    terms: ["butyrospermum parkii", "shea", "butyrospermum"],
     substring: true,
   },
   wheat: {
@@ -170,6 +226,13 @@ export const GROUPS: Record<GroupId, Group> = {
       "benzophenone-3", "oxybenzone", "ethylhexyl methoxycinnamate", "octinoxate",
       "butyl methoxydibenzoylmethane", "avobenzone", "octocrylene", "homosalate", "ethylhexyl salicylate",
     ],
+  },
+  scrubs: {
+    id: "scrubs",
+    label: "Scrub particles",
+    about: "Ground shells, seeds, kernels and pumice used to scrub the skin. A label cannot always show that a product is a scrub.",
+    terms: ["shell powder", "seed powder", "kernel powder", "stem powder", "pumice", "jojoba esters", "walnut shell"],
+    substring: true,
   },
   retinoids: {
     id: "retinoids",
@@ -227,16 +290,36 @@ export const STRONG_EXFOLIANTS: GroupId[] = ["aha", "bha"];
 
 // ---------- Profile choices ----------
 
-/** Groups the user can mark as "avoid" (allergy or intolerance). */
-export const AVOID_CHOICES: GroupId[] = [
-  "fragrance", "essential_oils", "lanolin", "isothiazolinones", "formaldehyde_releasers", "parabens",
-  "phenoxyethanol", "drying_alcohol", "sulfates", "propylene_glycol", "silicones", "peanut",
-  "tree_nuts", "wheat", "soy", "uv_filters_chemical",
+/** Allergies and intolerances the user can mark as "avoid". */
+export const ALLERGY_CHOICES: GroupId[] = [
+  "fragrance", "essential_oils", "isothiazolinones", "formaldehyde_releasers", "lanolin",
+  "propylene_glycol", "compositae", "propolis", "colophonium", "nuts", "parabens", "phenoxyethanol",
+  "wheat", "soy", "uv_filters_chemical",
 ];
+
+/** Preferences: things a person may want to avoid that are not allergies. */
+export const PREFERENCE_CHOICES: GroupId[] = ["silicones", "sulfates", "drying_alcohol"];
+
+/** Avoiding one group can also mean avoiding related ones. */
+export const AVOID_IMPLIES: Partial<Record<GroupId, GroupId[]>> = {
+  nuts: ["shea"],
+};
+
+export function expandAvoid(avoid: GroupId[]): GroupId[] {
+  const out = new Set<GroupId>(avoid);
+  for (const g of avoid) for (const extra of AVOID_IMPLIES[g] ?? []) out.add(extra);
+  return [...out];
+}
 
 // ---------- Medicines ----------
 
-export type EffectTag = "photosensitising" | "drying_fragile" | "retinoid_overlap" | "irritation_stacking" | "thin_skin";
+export type EffectTag =
+  | "photosensitising"
+  | "drying_fragile"
+  | "retinoid_overlap"
+  | "irritation_stacking"
+  | "thin_skin"
+  | "pigment_spots";
 
 export type Level = "ask" | "skip";
 
@@ -245,7 +328,7 @@ export type Flag = { group: GroupId | "strong_exfoliants"; level: Level; why: st
 export type Effect = {
   label: string;
   summary: string;
-  /** Daily sunscreen reminder. */
+  /** Daily sunscreen required. */
   spf: boolean;
   flags: Flag[];
 };
@@ -253,33 +336,36 @@ export type Effect = {
 export const EFFECTS: Record<EffectTag, Effect> = {
   photosensitising: {
     label: "Makes skin more sensitive to sunlight",
-    summary: "This kind of medicine can make skin burn or react more easily in the sun.",
+    summary: "This kind of medicine can make skin burn or react more easily in the sun. Daily sunscreen is needed.",
     spf: true,
     flags: [
-      { group: "retinoids", level: "ask", why: "retinoids also raise sun sensitivity" },
+      { group: "retinoids", level: "ask", why: "retinol also raises sun sensitivity" },
       { group: "strong_exfoliants", level: "ask", why: "exfoliating acids also raise sun sensitivity" },
+      { group: "citrus_extracts", level: "ask", why: "citrus extracts can react with sunlight" },
       { group: "furocoumarin_oils", level: "skip", why: "these oils can react with sunlight" },
     ],
   },
   drying_fragile: {
     label: "Makes skin very dry and fragile",
-    summary: "This kind of medicine dries and thins the skin, and makes it easier to irritate.",
+    summary: "This kind of medicine dries and thins the skin and makes it easier to irritate.",
     spf: true,
     flags: [
-      { group: "strong_exfoliants", level: "skip", why: "skin is already fragile" },
-      { group: "retinoids", level: "skip", why: "it adds vitamin A on top of the medicine" },
+      { group: "retinoids", level: "skip", why: "it adds vitamin A on top of the medicine; ask your doctor" },
+      { group: "strong_exfoliants", level: "skip", why: "skin is fragile; ask your doctor" },
+      { group: "scrubs", level: "skip", why: "skin is fragile; ask your doctor" },
       { group: "benzoyl_peroxide", level: "skip", why: "it dries and irritates" },
       { group: "drying_alcohol", level: "ask", why: "it can dry and sting" },
       { group: "fragrance", level: "ask", why: "fragile skin reacts more easily" },
     ],
   },
   retinoid_overlap: {
-    label: "Already a retinoid on the skin",
-    summary: "A second retinoid or an exfoliating acid on top can irritate the skin.",
+    label: "Prescription retinoid on the skin",
+    summary: "A second retinoid, an exfoliating acid or a scrub on top can irritate the skin.",
     spf: true,
     flags: [
-      { group: "retinoids", level: "skip", why: "you already use one" },
-      { group: "strong_exfoliants", level: "skip", why: "it stacks irritation" },
+      { group: "retinoids", level: "skip", why: "you already use a retinoid; ask your doctor" },
+      { group: "strong_exfoliants", level: "skip", why: "it stacks irritation; ask your doctor" },
+      { group: "scrubs", level: "skip", why: "it stacks irritation; ask your doctor" },
       { group: "benzoyl_peroxide", level: "ask", why: "it can stack irritation" },
     ],
   },
@@ -293,13 +379,21 @@ export const EFFECTS: Record<EffectTag, Effect> = {
     ],
   },
   thin_skin: {
-    label: "Can thin the skin where it is used",
-    summary: "Used on the face, this kind of medicine can thin the skin, which then tolerates strong actives less.",
+    label: "Corticosteroid on the same area",
+    summary: "On the same area, a corticosteroid cream can thin the skin, which then tolerates strong actives less. No strong actives there.",
     spf: false,
     flags: [
       { group: "retinoids", level: "ask", why: "thinner skin tolerates it less" },
       { group: "strong_exfoliants", level: "ask", why: "thinner skin tolerates it less" },
+      { group: "scrubs", level: "ask", why: "thinner skin tolerates it less" },
+      { group: "benzoyl_peroxide", level: "ask", why: "thinner skin tolerates it less" },
     ],
+  },
+  pigment_spots: {
+    label: "May make pigment spots more likely",
+    summary: "Hormonal medicines such as the contraceptive pill can make pigment spots (melasma) more likely, especially with sun. Daily sunscreen helps.",
+    spf: true,
+    flags: [],
   },
 };
 
@@ -307,21 +401,21 @@ export type Medicine = { id: string; label: string; note: string; tags: EffectTa
 
 /** Generic names only. */
 export const MEDICINES: Medicine[] = [
-  { id: "doxycycline", label: "Doxycycline", note: "antibiotic (tablets)", tags: ["photosensitising"] },
-  { id: "tetracyclines", label: "Other tetracyclines (minocycline, lymecycline, tetracycline)", note: "antibiotics", tags: ["photosensitising"] },
-  { id: "fluoroquinolones", label: "Fluoroquinolones (ciprofloxacin, levofloxacin)", note: "antibiotics", tags: ["photosensitising"] },
+  { id: "tetracyclines", label: "Tetracyclines (doxycycline, minocycline, lymecycline, tetracycline)", note: "antibiotics", tags: ["photosensitising"] },
   { id: "isotretinoin", label: "Isotretinoin (tablets)", note: "prescription acne treatment", tags: ["drying_fragile", "photosensitising"] },
-  { id: "topical_retinoid", label: "Prescription retinoid cream or gel (tretinoin, adapalene, tazarotene)", note: "applied to the skin", tags: ["retinoid_overlap", "photosensitising"] },
-  { id: "benzoyl_peroxide_med", label: "Benzoyl peroxide (acne treatment)", note: "applied to the skin", tags: ["irritation_stacking"] },
+  { id: "acitretin", label: "Acitretin (tablets)", note: "prescription skin treatment", tags: ["photosensitising"] },
+  { id: "fluoroquinolones", label: "Fluoroquinolones (ciprofloxacin, levofloxacin)", note: "antibiotics", tags: ["photosensitising"] },
   { id: "hydrochlorothiazide", label: "Hydrochlorothiazide", note: "water tablet for blood pressure", tags: ["photosensitising"] },
   { id: "amiodarone", label: "Amiodarone", note: "heart rhythm medicine", tags: ["photosensitising"] },
-  { id: "methotrexate", label: "Methotrexate", note: "tablets or injection", tags: ["photosensitising"] },
   { id: "ketoprofen_topical", label: "Ketoprofen gel (painkiller gel)", note: "applied to the skin", tags: ["photosensitising"] },
   { id: "st_johns_wort", label: "St John's wort (herbal)", note: "supplement", tags: ["photosensitising"] },
-  { id: "topical_steroid_face", label: "Steroid cream used on the face", note: "applied to the skin", tags: ["thin_skin"] },
+  { id: "topical_retinoid", label: "Prescription retinoid cream or gel (tretinoin, adapalene, tazarotene)", note: "applied to the skin", tags: ["retinoid_overlap", "photosensitising"] },
+  { id: "corticosteroid_cream", label: "Corticosteroid cream on the same area", note: "applied to the skin", tags: ["thin_skin"] },
+  { id: "oral_contraceptive", label: "Oral contraceptive (the pill)", note: "hormonal tablets", tags: ["pigment_spots"] },
+  { id: "benzoyl_peroxide_med", label: "Benzoyl peroxide (acne treatment)", note: "applied to the skin", tags: ["irritation_stacking"] },
 ];
 
-// ---------- Pregnancy and breastfeeding ----------
+// ---------- Pregnancy, breastfeeding and sensitive skin ----------
 
 export const PREGNANCY_FLAGS: Flag[] = [
   { group: "retinoids", level: "skip", why: "retinoids are left out in pregnancy and breastfeeding" },
@@ -333,6 +427,17 @@ export const PREGNANCY_FLAGS: Flag[] = [
 /** Kept on purpose (reviewed): azelaic acid, vitamin C and niacinamide stay, with this note. */
 export const PREGNANCY_OK_NOTE =
   "Azelaic acid, vitamin C and niacinamide are not flagged. Please still check with your doctor or pharmacist.";
+
+/** Extra flags for sensitive skin. */
+export const SENSITIVE_SKIN_FLAGS: Flag[] = [
+  { group: "citrus_extracts", level: "ask", why: "citrus extracts can irritate and react with sunlight" },
+  { group: "plant_extracts", level: "ask", why: "plant extracts can irritate sensitive skin" },
+];
+
+/** Plant extracts are also flagged ("ask") when the user has listed any allergy. */
+export const ALLERGY_PROFILE_FLAGS: Flag[] = [
+  { group: "plant_extracts", level: "ask", why: "you listed an allergy, and plant extracts can contain allergens" },
+];
 
 // ---------- Matching ----------
 
@@ -357,7 +462,6 @@ export function groupsOf(ingredient: string): GroupId[] {
     if (g.also && !name.includes(g.also)) continue;
     if (g.terms.some((t) => matchesTerm(name, t, Boolean(g.substring)))) out.push(g.id);
   }
-  // "salicylic acid" must not match esters like "benzyl salicylate"; terms are whole words so it does not.
   // Fatty alcohols (cetyl, cetearyl, stearyl alcohol) are not drying alcohols.
   if (out.includes("drying_alcohol") && /(cetyl|cetearyl|stearyl|behenyl|myristyl|lauryl|benzyl|phenethyl) alcohol|alcohol (benzoate)/.test(name)) {
     return out.filter((g) => g !== "drying_alcohol");
