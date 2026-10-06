@@ -1,4 +1,4 @@
-﻿# Counter Check — Roadmap
+# Counter Check — Roadmap
 
 *(formerly Mirror Session; repo `iancuileana83-lab/mirror-session`, old live app https://mirror-prep-pal.lovable.app)*
 
@@ -101,8 +101,11 @@ build + typecheck + a browser test; phases marked **REVIEW** stop for the pharma
 | 1 | done: new home and name, old event pages removed (clothes try-on code kept), sample face button on the scan page (drawn face), README rewritten, `tsc` clean, build passes |
 | 2 | done: `/profile` page (stored in the browser) and the reviewed knowledge base `src/lib/knowledge-base.ts`, shown on `/rules` (ingredient groups incl. citrus extracts, plant extracts, Compositae, propolis, colophonium, nuts+shea; 12 medicines and their effects; pregnancy/breastfeeding, sensitive-skin and allergy-profile flags; preferences kept apart from allergies). Pharmacist review applied Oct 7. |
 | 3 | done: `/product` label reader (Gemini transcription only; default model gemini-3.5-flash because 2.5-flash is closed to new keys; photo shrunk in the browser, strict transcribe-only prompt, JSON schema output, editable text, paste fallback, fictional sample label; only label photos are sent, never face photos). Tested: 15 of 15 ingredients copied exactly. |
-| 4 | built, **waiting for pharmacist review of the verdict screen**: `src/lib/pharmacist-check.ts` (fixed rules, three levels, strictest flag decides, preferences cap at Check first, honest "couldn't match" state when under half of the ingredients are known) and `/check`. Profile now also holds the warning signs; sample profile and sample label for judges. |
+| 4 | done (reviewed and approved Oct 7; wording additions applied): `src/lib/pharmacist-check.ts` (fixed rules, three levels, strictest flag decides, preferences cap at Check first, honest "couldn't match" state when under half of the ingredients are known) and `/check`. Profile now also holds the warning signs; sample profile and sample label for judges. |
+| 5 | hosting decided Oct 7: **Google Cloud Run**, keys in Secret Manager, strict limits. Dockerfile, .dockerignore and DEPLOY.md written (commands only, **nothing run in Google Cloud**; waiting for your OK). Node server build tested locally. |
+| 6 | built, **waiting for your test with a real photo**: `/tryon` (YouCam makeup try-on: lipstick and foundation, fictional shade names, before/after; `src/lib/makeup-tryon.functions.ts`, shared helpers `src/lib/youcam-http.ts`). Works end to end on the sample face (1 unit). |
 | 3–10 | not started |
 | Approved Oct 6 | Plan approved. Judge sample mode: generated face + fictional label. Video narration says "an AI text reader" (no logos); Gemini named only in README and the written description. Cut order: shopping-agent polish, then "Is it working?", then stretch. |
+
 
 
