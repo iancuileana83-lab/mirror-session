@@ -403,10 +403,11 @@ export type Medicine = { id: string; label: string; note: string; tags: EffectTa
 export const MEDICINES: Medicine[] = [
   { id: "tetracyclines", label: "Tetracyclines (doxycycline, minocycline, lymecycline, tetracycline)", note: "antibiotics", tags: ["photosensitising"] },
   { id: "isotretinoin", label: "Isotretinoin (tablets)", note: "prescription acne treatment", tags: ["drying_fragile", "photosensitising"] },
-  { id: "acitretin", label: "Acitretin (tablets)", note: "prescription skin treatment", tags: ["photosensitising"] },
+  { id: "acitretin", label: "Acitretin (tablets)", note: "prescription skin treatment", tags: ["drying_fragile", "photosensitising"] },
   { id: "fluoroquinolones", label: "Fluoroquinolones (ciprofloxacin, levofloxacin)", note: "antibiotics", tags: ["photosensitising"] },
   { id: "hydrochlorothiazide", label: "Hydrochlorothiazide", note: "water tablet for blood pressure", tags: ["photosensitising"] },
   { id: "amiodarone", label: "Amiodarone", note: "heart rhythm medicine", tags: ["photosensitising"] },
+  { id: "methotrexate", label: "Methotrexate", note: "tablets or injection", tags: ["photosensitising"] },
   { id: "ketoprofen_topical", label: "Ketoprofen gel (painkiller gel)", note: "applied to the skin", tags: ["photosensitising"] },
   { id: "st_johns_wort", label: "St John's wort (herbal)", note: "supplement", tags: ["photosensitising"] },
   { id: "topical_retinoid", label: "Prescription retinoid cream or gel (tretinoin, adapalene, tazarotene)", note: "applied to the skin", tags: ["retinoid_overlap", "photosensitising"] },
