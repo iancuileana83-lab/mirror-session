@@ -96,10 +96,9 @@ function ComparePage() {
   const loadDemo = () => {
     saveProfile(SAMPLE_PROFILE);
     setProfile(SAMPLE_PROFILE);
-    if (!loadSkin()?.scores) {
-      saveSkin({ hydration: "", texture: "", focus: "", tip: "", scores: DEMO_SCORES });
-      setScores(DEMO_SCORES);
-    }
+    // The demo always uses its own fictional scan, so the "why it fits" lines show.
+    saveSkin({ hydration: "", texture: "", focus: "", tip: "", scores: DEMO_SCORES });
+    setScores(DEMO_SCORES);
     clearBasket();
     setBasket(null);
     update(SAMPLE_SHELF);

@@ -172,7 +172,7 @@ function ProductPage() {
                 {state === "reading" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanText className="h-4 w-4" />}
                 {state === "reading" ? "Reading the label..." : "Read the ingredient list"}
               </button>
-              <p className="text-xs text-muted-foreground">Only this label photo is sent to the AI text reader (Gemini). Never your face photo.</p>
+              <p className="text-xs text-muted-foreground">Only this label photo is sent to a third-party AI text reader (named in the project README). Never your face photo.</p>
             </div>
           )}
           {message && <p className="mt-4 text-center text-sm text-destructive">{message}</p>}
