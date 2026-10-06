@@ -68,6 +68,13 @@ gcloud run deploy counter-check --source . --region REGION --allow-unauthenticat
   --set-secrets "YOUCAM_API_KEY=counter-check-youcam-key:latest,GEMINI_API_KEY=counter-check-gemini-key:latest"
 ```
 
+**Done Oct 6:** live at https://counter-check-v4fk5lvbla-ez.a.run.app (build succeeded, Ready). `--allow-unauthenticated` did not apply the public
+setting (every page gave 403), so this was run for counter-check only:
+
+```powershell
+gcloud run services add-iam-policy-binding counter-check --region REGION --project PROJECT_ID --member=allUsers --role=roles/run.invoker
+```
+
 `--allow-unauthenticated` makes the link public (judges need no login); an organisation policy may block it.
 `--max-instances 2` and `--min-instances 0` cap the cost; the app itself adds per-visitor and daily caps (roadmap phase 9).
 
