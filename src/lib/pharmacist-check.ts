@@ -26,7 +26,7 @@ import {
 import { isCommonIngredient } from "./common-ingredients";
 import type { Profile } from "./profile";
 import { MAX_ACTIVES, RULES, buildRoutine } from "./routine-rules";
-import type { Scores } from "./skin-concerns";
+import { CONCERNS, type Scores } from "./skin-concerns";
 
 export type Verdict = "match" | "ask" | "skip" | "unmatched";
 
@@ -53,6 +53,8 @@ export type CheckResult = {
   /** Points where the product fits the skin results (information, never changes the verdict). */
   fits: string[];
   notes: string[];
+  /** Soft notes that never change the verdict (for example common irritants). */
+  soft: string[];
   /** Ingredients the check did not recognise at all. */
   unrecognised: string[];
   recognisedShare: number;
@@ -199,13 +201,19 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
     const groupFor: Record<string, GroupId> = {
       niacinamide: "niacinamide", salicylic: "bha", azelaic: "azelaic", retinol: "retinoids", vitamin_c: "vitamin_c",
     };
+    const fitConcerns = new Map<GroupId, string[]>();
     for (const r of RULES) {
       const g = groupFor[r.ingredient];
       const v = scores[r.concern];
       if (g && typeof v === "number" && v < r.below && found(g).length) {
-        const msg = `${list(found(g))} fits your scan: ${r.reason}`;
-        if (!fits.includes(msg)) fits.push(msg);
+        const label = CONCERNS.find((c) => c.id === r.concern)?.label.toLowerCase() ?? r.concern;
+        const cur = fitConcerns.get(g) ?? [];
+        if (!cur.includes(label)) fitConcerns.set(g, [...cur, label]);
       }
+    }
+    for (const [g, labels] of fitConcerns) {
+      const names = labels.length > 1 ? `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}` : labels[0];
+      fits.push(`${list(found(g))} - fits your ${names} results`);
     }
   } else {
     notes.push("No skin scan yet, so the fit with your skin results was not checked.");
@@ -261,6 +269,15 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
       because: `your routine already has ${routineActives.length} active ingredients; introduce one new active at a time`,
     });
 
+  // Soft note, independent of the profile: common irritants. The verdict is not changed by it.
+  const soft: string[] = [];
+  const irritantGroups: Array<[GroupId, string]> = [["fragrance", "fragrance"], ["essential_oils", "essential oils"], ["citrus_extracts", "citrus extracts"]];
+  const irritantLabels = irritantGroups.filter(([g]) => found(g).length).map(([, l]) => l);
+  if (irritantLabels.length) {
+    const names = foundAny(irritantGroups.map(([g]) => g));
+    soft.push(`Contains ${irritantLabels.join(", ")} (${names.join(", ")}), which commonly irritate.`);
+  }
+
   // Merge findings about the same ingredients and level into one reason.
   const merged = new Map<string, Reason>();
   for (const f of findings) {
@@ -302,8 +319,8 @@ export function runCheck(ingredients: string[], profile: Profile, scores: Scores
   } else {
     verdict = "match";
     headline = "Good match";
-    summary = "Nothing in this ingredient list conflicts with what you told us. We can\u0027t see amounts or how you use it.";
+    summary = `Nothing in this ingredient list conflicts with what you told us.${fits.length ? ` Why it fits: ${fits.join("; ")}.` : ""} We can\u0027t see amounts or how you use it.`;
   }
 
-  return { verdict, headline, summary, reasons, fits, notes: [...new Set(notes)], unrecognised, recognisedShare };
+  return { verdict, headline, summary, reasons, fits, notes: [...new Set(notes)], soft, unrecognised, recognisedShare };
 }

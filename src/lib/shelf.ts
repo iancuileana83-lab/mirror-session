@@ -19,13 +19,13 @@ export type ShelfItem = {
   ingredients: string[];
 };
 
-export const MAX_SHELF = 3;
+export const MAX_SHELF = 4;
 
 export type Basket = {
   /** ISO date the user confirmed it. */
   confirmedOn: string;
-  buyNow: Array<{ name: string; kind: ProductKind; why: string }>;
-  later: Array<{ name: string; kind: ProductKind; why: string }>;
+  buyNow: Array<{ name: string; kind: ProductKind; why: string; tip: string }>;
+  later: Array<{ name: string; kind: ProductKind; why: string; tip: string }>;
 };
 
 const SHELF_KEY = "cc:shelf:v1";
@@ -65,7 +65,7 @@ export const clearBasket = () => {
 
 export const newId = () => `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
-/** Three fictional products for the judge sample mode. No real brands. */
+/** Four fictional products for the judge sample mode. No real brands. */
 export const SAMPLE_SHELF: ShelfItem[] = [
   {
     id: "sample-meadow",
@@ -79,16 +79,6 @@ export const SAMPLE_SHELF: ShelfItem[] = [
     ],
   },
   {
-    id: "sample-pebble",
-    name: "Pebble Moisturiser",
-    kind: "moisturiser",
-    ingredients: [
-      "Aqua", "Glycerin", "Cetearyl Alcohol", "Sodium Hyaluronate", "Panthenol", "Niacinamide",
-      "Squalane", "Caprylic/Capric Triglyceride", "Tocopherol", "Citric Acid", "Xanthan Gum",
-      "Ethylhexylglycerin", "Caprylyl Glycol",
-    ],
-  },
-  {
     id: "sample-lantern",
     name: "Lantern Vitamin C Serum",
     kind: "serum",
@@ -96,5 +86,20 @@ export const SAMPLE_SHELF: ShelfItem[] = [
       "Aqua", "Ascorbic Acid", "Glycerin", "Propanediol", "Sodium Hyaluronate", "Tocopherol",
       "Panthenol", "Ethylhexylglycerin", "Sodium Hydroxide", "Caprylyl Glycol",
     ],
+  },
+  {
+    id: "sample-dune",
+    name: "Dune Azelaic Cream",
+    kind: "moisturiser",
+    ingredients: [
+      "Aqua", "Glycerin", "Azelaic Acid", "Cetearyl Alcohol", "Panthenol", "Sodium Hyaluronate",
+      "Caprylic/Capric Triglyceride", "Tocopherol", "Xanthan Gum", "Sodium Hydroxide",
+    ],
+  },
+  {
+    id: "sample-harbor",
+    name: "Harbor Glycolic Toner",
+    kind: "other",
+    ingredients: ["Aqua", "Glycolic Acid", "Glycerin", "Propanediol", "Panthenol", "Sodium Hydroxide", "Caprylyl Glycol"],
   },
 ];

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CircleAlert, CircleCheck, CircleHelp, CircleX, Trash2 } from "lucide-react";
-import { EMPTY_PROFILE, loadProfile, type Profile } from "@/lib/profile";
-import { loadSkin } from "@/lib/mirror-session";
+import { EMPTY_PROFILE, SAMPLE_PROFILE, loadProfile, saveProfile, type Profile } from "@/lib/profile";
+import { loadSkin, saveSkin } from "@/lib/mirror-session";
 import { loadProduct } from "@/lib/product";
 import { splitInci } from "@/lib/knowledge-base";
 import type { Scores } from "@/lib/skin-concerns";
@@ -42,6 +42,9 @@ const VERDICT_STYLE: Record<Verdict, { label: string; cls: string; Icon: typeof 
   skip: { label: "Better to skip", cls: "bg-rose-100 text-rose-900", Icon: CircleX },
   unmatched: { label: "Couldn't match", cls: "bg-muted text-foreground", Icon: CircleHelp },
 };
+
+/** A fictional scan for the demo (not a real person). */
+const DEMO_SCORES: Scores = { moisture: 55, oiliness: 60, texture: 62, pore: 50, redness: 48, acne: 70, dark_circle: 66, age_spot: 55, wrinkle: 72, radiance: 50, firmness: 74, eye_bag: 80 };
 
 function ComparePage() {
   const [shelf, setShelf] = useState<ShelfItem[]>([]);
@@ -90,8 +93,21 @@ function ComparePage() {
     addItem({ id: newId(), name: `Product ${shelf.length + 1}`, kind, ingredients: p.ingredients });
   };
 
+  /** Judge demo: fictional products, sample profile, and a fictional scan if there is none. */
+  const loadDemo = () => {
+    saveProfile(SAMPLE_PROFILE);
+    setProfile(SAMPLE_PROFILE);
+    if (!loadSkin()?.scores) {
+      saveSkin({ hydration: "", texture: "", focus: "", tip: "", scores: DEMO_SCORES });
+      setScores(DEMO_SCORES);
+    }
+    clearBasket();
+    setBasket(null);
+    update(SAMPLE_SHELF);
+  };
+
   const confirm = () => {
-    const toLines = (ls: Line[]) => ls.map((l) => ({ name: l.item.name, kind: l.item.kind, why: l.why }));
+    const toLines = (ls: Line[]) => ls.map((l) => ({ name: l.item.name, kind: l.item.kind, why: l.why, tip: l.tip }));
     const b: Basket = {
       confirmedOn: new Date().toISOString().slice(0, 10),
       buyNow: toLines(proposal.buyNow),
@@ -129,7 +145,7 @@ function ComparePage() {
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
               {basket.buyNow.map((b) => (
                 <li key={b.name}>
-                  <strong>{b.name}</strong> ({KIND_LABEL[b.kind]})
+                  <strong>{b.name}</strong> ({KIND_LABEL[b.kind]}){b.tip ? `: ${b.tip}` : ""}
                 </li>
               ))}
             </ul>
@@ -138,7 +154,7 @@ function ComparePage() {
                 <p className="mt-3 text-sm font-medium">Later, one new active at a time:</p>
                 <ul className="list-disc space-y-1 pl-5 text-sm">
                   {basket.later.map((b) => (
-                    <li key={b.name}>{b.name}</li>
+                    <li key={b.name}>{b.name}{b.tip ? `: ${b.tip}` : ""}</li>
                   ))}
                 </ul>
               </>
@@ -165,14 +181,14 @@ function ComparePage() {
             <h2 className="font-serif text-2xl text-foreground">Your products ({shelf.length} of {MAX_SHELF})</h2>
             <button
               type="button"
-              onClick={() => update(SAMPLE_SHELF)}
+              onClick={loadDemo}
               className="text-sm text-muted-foreground underline underline-offset-4"
             >
-              Demo: load 3 sample products (fictional)
+              Demo: load sample products, profile and scan (fictional)
             </button>
           </div>
           {ready && shelf.length === 0 && <p className="text-sm text-muted-foreground">No products yet. Add one below, or load the samples.</p>}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {evals.map((e) => {
               const v = VERDICT_STYLE[e.check.verdict];
               return (
@@ -194,8 +210,11 @@ function ComparePage() {
                       <li key={i}>{r.text.split(". ").slice(0, 2).join(". ")}</li>
                     ))}
                     {e.check.reasons.length > 3 && <li className="text-muted-foreground">+ {e.check.reasons.length - 3} more points</li>}
-                    {e.check.fits.slice(0, 1).map((f) => (
+                    {e.check.fits.slice(0, 2).map((f) => (
                       <li key={f} className="text-emerald-800">{f}</li>
+                    ))}
+                    {e.check.soft.slice(0, 1).map((s) => (
+                      <li key={s} className="text-muted-foreground">{s}</li>
                     ))}
                   </ul>
                 </article>
@@ -272,6 +291,7 @@ function Group({ title, lines }: { title: string; lines: Line[] }) {
           <li key={l.item.id} className="rounded-2xl border border-border bg-card p-3">
             <strong>{l.item.name}</strong> <span className="text-muted-foreground">({KIND_LABEL[l.item.kind]})</span>
             <p className="mt-1 text-foreground/90">{l.why}</p>
+            {l.tip && <p className="mt-1 text-foreground"><span className="font-medium">How to use: </span>{l.tip}</p>}
           </li>
         ))}
       </ul>

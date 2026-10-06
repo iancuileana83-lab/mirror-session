@@ -130,11 +130,11 @@ function CheckPage() {
               </section>
             )}
 
-            {result.notes.length > 0 && (
+            {(result.notes.length > 0 || result.soft.length > 0) && (
               <section className="rounded-3xl border border-border bg-accent/40 p-5">
                 <h2 className="font-serif text-xl text-foreground">Good to know</h2>
                 <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-foreground">
-                  {result.notes.map((n) => (
+                  {[...result.notes, ...result.soft].map((n) => (
                     <li key={n}>{n}</li>
                   ))}
                 </ul>
