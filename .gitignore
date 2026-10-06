@@ -35,3 +35,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Rendered demo video (21 MB) and raw recordings: not stored in git
+docs/video/*.mp4
+docs/video/raw/

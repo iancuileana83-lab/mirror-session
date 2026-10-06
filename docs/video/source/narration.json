@@ -1,0 +1,11 @@
+[
+  { "id": "s1", "text": "I worked in community pharmacies for twenty years. The question I heard most was: is this product right for me? Counter Check helps you check it right at the shelf, before you buy." },
+  { "id": "s2", "text": "Step one: a face scan with the YouCam Skin Analysis API. It reads twelve skin concerns and explains each one in plain words, including what the result does not mean. This face is AI-generated, not a real person." },
+  { "id": "s3", "text": "Step two: tell it about you. Medicines, allergies, what you already use. All of it stays in your browser." },
+  { "id": "s4", "text": "Step three: photograph the ingredient list of a product. An AI text reader only copies the words. It never judges or advises, and you can correct the text. This product is fictional." },
+  { "id": "s5", "text": "Step four: the check. These are fixed rules, not an AI. It names the exact ingredients and the reason: your allergy, your medicine, your sensitive skin. The strictest flag decides, and it always ends with: ask your pharmacist or doctor." },
+  { "id": "s6", "text": "Step five: for coloured products, the YouCam Makeup Virtual Try-On API shows the shade on your own photo before you buy." },
+  { "id": "s7", "text": "A shopping coach compares up to four products and proposes a basket: now, later, check first, leave out. It saves nothing until you confirm. One new active at a time, with a counter-style tip for each." },
+  { "id": "s8", "text": "And after four to six weeks, a second scan shows honestly whether anything changed, including when nothing did." },
+  { "id": "s9", "text": "Counter Check uses the YouCam Skin Analysis and Makeup Virtual Try-On APIs. It is open source, and it is not medical advice. Thank you." }
+]
