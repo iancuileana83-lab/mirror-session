@@ -1,9 +1,9 @@
 # Deploying Counter Check to Google Cloud Run
 
-Status: **commands only, nothing has been run.** Each step is run only after the owner's OK.
-Project `PROJECT_ID`, region `REGION`. The project also hosts another project: **never touch
-its service, secrets, database or service account.** Everything below uses its own names
-(`counter-check`, `counter-check-*`) and its own service account.
+Notes for deploying the demo to Google Cloud Run. Replace `PROJECT_ID` and `REGION` with your own values.
+The Google Cloud project may host other services: **never touch their services, secrets, databases or
+service accounts.** Everything below uses its own names (`counter-check`, `counter-check-*`) and its own
+service account.
 
 The app builds as a plain Node server (`NITRO_PRESET=node-server`, tested locally: `/` and `/rules` answer 200).
 The Docker image holds no secrets (`.env` is excluded in `.dockerignore`).
@@ -19,12 +19,11 @@ gcloud iam service-accounts list --project PROJECT_ID
 
 Check that none of the names used below already exist.
 
-**Result of step 0 (Oct 6, run read-only with `--project`, no gcloud setting changed):** no clash. Existing Cloud Run
-services in REGION: other services.
-Existing secrets: the three `other-project-*` secrets. None of `counter-check`, `counter-check-youcam-key`,
-`counter-check-gemini-key` or `counter-check-run` exists. The four APIs in step 1 are already enabled, so step 1 can be skipped.
+**Result of step 0 (run read-only with `--project`, no gcloud setting changed):** no name clash with anything already
+in the project: none of `counter-check`, `counter-check-youcam-key`, `counter-check-gemini-key` or `counter-check-run`
+existed. The four APIs in step 1 were already enabled, so step 1 could be skipped.
 
-## 1. APIs (shared by the project, harmless to another project)
+## 1. APIs (shared by the project, harmless to other services)
 
 ```powershell
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
@@ -104,7 +103,7 @@ gcloud billing budgets create --billing-account=BILLING_ID --display-name="count
   --budget-amount=10EUR --threshold-rule=percent=0.5 --threshold-rule=percent=1.0
 ```
 
-(The budget covers the whole billing account, so it also watches another project's costs.)
+(The budget covers the whole billing account, so it also watches the costs of any other project on it.)
 
 ## 7. Address and checks
 
