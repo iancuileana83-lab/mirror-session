@@ -60,6 +60,7 @@ Everything works without a login, your own photo or any key. The sample buttons 
 
 The paid calls (scan, label reader, try-on) have per-visitor and daily limits. When one is reached, the app says so and
 shows a saved example, so the rest of the flow still works.
+
 ## Run locally
 
 Windows (PowerShell), Node 20+:
