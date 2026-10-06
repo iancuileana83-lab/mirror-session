@@ -51,6 +51,8 @@ function TryOnPage() {
   const [shade, setShade] = useState<Shade>(SHADES.lipstick.shades[0]);
   const [result, setResult] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** True when a limit was hit and a saved example (fictional face) is shown instead. */
+  const [exampleFace, setExampleFace] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const tryOnFn = useServerFn(makeupTryOn);
 
@@ -62,6 +64,7 @@ function TryOnPage() {
     setKind(k);
     setShade(SHADES[k].shades[0]);
     setResult(null);
+    setExampleFace(null);
     setMessage(null);
   };
 
@@ -69,6 +72,7 @@ function TryOnPage() {
     setFace(dataUrl);
     saveFace({ dataUrl });
     setResult(null);
+    setExampleFace(null);
     setMessage(null);
   };
 
@@ -92,7 +96,10 @@ function TryOnPage() {
     } catch (err) {
       console.error(err);
       if (isLimitError(err)) {
-        setMessage(limitMessage(err, "try-ons"));
+        // Never dead-end: show a saved example (fictional face, not the visitor).
+        setMessage(`${limitMessage(err, "try-ons")} Below is a saved example result instead.`);
+        setExampleFace(makeSampleFace());
+        setResult(null);
         return;
       }
       const detail = err instanceof Error && err.message.startsWith("Try-on:") ? ` (${err.message.slice(0, 160)})` : "";
@@ -198,14 +205,16 @@ function TryOnPage() {
           {message && <p className="max-w-md text-center text-sm text-destructive">{message}</p>}
         </div>
 
-        {face && (
+        {(face || exampleFace) && (
           <section className="grid gap-4 sm:grid-cols-2">
             <figure className="overflow-hidden rounded-3xl border border-border bg-card">
-              <img src={face} alt="Your photo" className="w-full object-contain" />
-              <figcaption className="p-3 text-center text-xs text-muted-foreground">Before</figcaption>
+              <img src={exampleFace ?? face ?? ""} alt={exampleFace ? "Example: a drawn face" : "Your photo"} className="w-full object-contain" />
+              <figcaption className="p-3 text-center text-xs text-muted-foreground">{exampleFace ? "Before (example: a drawn face, not your photo)" : "Before"}</figcaption>
             </figure>
             <figure className="overflow-hidden rounded-3xl border border-border bg-card">
-              {result ? (
+              {exampleFace ? (
+                <img src="/examples/tryon-example.jpg" alt="Example result: foundation Deep on a drawn face" className="w-full object-contain" />
+              ) : result ? (
                 <img src={result} alt={`Your photo with ${shade.name}`} className="w-full object-contain" />
               ) : (
                 <div className="flex h-full min-h-48 items-center justify-center p-6 text-center text-sm text-muted-foreground">
@@ -213,7 +222,7 @@ function TryOnPage() {
                 </div>
               )}
               <figcaption className="p-3 text-center text-xs text-muted-foreground">
-                {result ? `After: ${SHADES[kind].label.toLowerCase()} ${shade.name}` : "After"}
+                {exampleFace ? "Example result: foundation Deep on a drawn face" : result ? `After: ${SHADES[kind].label.toLowerCase()} ${shade.name}` : "After"}
               </figcaption>
             </figure>
           </section>

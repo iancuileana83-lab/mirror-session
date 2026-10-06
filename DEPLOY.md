@@ -12,13 +12,17 @@ PowerShell, from the project folder. `BILLING_ID` is your billing account id.
 ## 0. Look first (read-only, changes nothing)
 
 ```powershell
-gcloud config set project PROJECT_ID
-gcloud run services list --region REGION
-gcloud secrets list
-gcloud iam service-accounts list
+gcloud run services list --region REGION --project PROJECT_ID
+gcloud secrets list --project PROJECT_ID
+gcloud iam service-accounts list --project PROJECT_ID
 ```
 
 Check that none of the names used below already exist.
+
+**Result of step 0 (Oct 6, run read-only with `--project`, no gcloud setting changed):** no clash. Existing Cloud Run
+services in REGION: other services.
+Existing secrets: the three `other-project-*` secrets. None of `counter-check`, `counter-check-youcam-key`,
+`counter-check-gemini-key` or `counter-check-run` exists. The four APIs in step 1 are already enabled, so step 1 can be skipped.
 
 ## 1. APIs (shared by the project, harmless to another project)
 
@@ -103,7 +107,10 @@ gcloud run services describe counter-check --region REGION --format "value(statu
 
 Open the URL on a clean browser and a phone: scan with the sample face, read the sample label, check, try on, compare.
 
-## 8. After judging
+## 8. Cleanup: only after the winners are announced (not after the deadline)
+
+Keep the service, the secrets and the service account running through judging and until the winners are
+announced. Then:
 
 ```powershell
 gcloud run services delete counter-check --region REGION
