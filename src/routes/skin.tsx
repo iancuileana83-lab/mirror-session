@@ -96,8 +96,9 @@ function SkinAnalysis() {
       });    } catch (err) {
       console.error(err);
       setState("error");
+      const detail = err instanceof Error && err.message.startsWith("YouCam:") ? ` (${err.message.slice(0, 200)})` : "";
       setErrorMsg(
-        "We couldn't finish reading your skin just now. Try another photo, or give it another moment.",
+        `We couldn't finish reading your skin just now. Try another photo, or give it another moment.${detail}`,
       );
     }
   };

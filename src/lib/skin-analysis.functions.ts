@@ -18,19 +18,51 @@ function dataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType: stri
   return { bytes, contentType };
 }
 
+/** fetch with a timeout and a safe log line (host and path only, never query strings or the key). */
+async function yfetch(url: string, init: RequestInit, timeoutMs = 25_000): Promise<Response> {
+  let where = "?";
+  try {
+    const u = new URL(url);
+    where = u.host + (u.host.includes("makeupar") ? u.pathname : "");
+  } catch {
+    // ignore
+  }
+  const started = Date.now();
+  try {
+    const res = await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+    console.log(`[skin-analysis] ${init.method ?? "GET"} ${where} -> ${res.status} (${Date.now() - started} ms)`);
+    return res;
+  } catch (err) {
+    console.error(`[skin-analysis] ${init.method ?? "GET"} ${where} failed after ${Date.now() - started} ms:`, err instanceof Error ? err.message : err);
+    throw err;
+  }
+}
 export const analyzeSkin = createServerFn({ method: "POST" })
   .inputValidator((data: { dataUrl: string }) => {
     if (!data || typeof data.dataUrl !== "string") throw new Error("dataUrl required");
     return data;
   })
   .handler(async ({ data }): Promise<UiResult> => {
+    try {
+      return await runAnalysis(data.dataUrl);
+    } catch (err) {
+      // Log the real reason on the server (status + YouCam message; never the key or the photo).
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('[skin-analysis] failed:', msg.slice(0, 1500));
+      throw new Error('YouCam: ' + msg.slice(0, 300));
+    }
+  });
+
+async function runAnalysis(dataUrl: string): Promise<UiResult> {
+  const data = { dataUrl };
     const apiKey = process.env.YOUCAM_API_KEY;
+    console.log('[skin-analysis] key loaded:', Boolean(apiKey));
     if (!apiKey) throw new Error("YOUCAM_API_KEY is not configured");
 
     const { bytes, contentType } = dataUrlToBytes(data.dataUrl);
 
     // 1. Request upload URL + file_id
-    const fileRes = await fetch(`${BASE}/file/skin-analysis`, {
+    const fileRes = await yfetch(`${BASE}/file/skin-analysis`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -66,7 +98,7 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     } else if (reqHeaders && typeof reqHeaders === "object") {
       for (const [k, v] of Object.entries(reqHeaders)) uploadHeaders[k] = String(v);
     }
-    const uploadRes = await fetch(req.url, {
+    const uploadRes = await yfetch(req.url, {
       method: req.method || "PUT",
       headers: uploadHeaders,
       body: bytes as BodyInit,
@@ -76,7 +108,7 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     }
 
     // 3. Start task
-    const taskRes = await fetch(`${BASE}/task/skin-analysis`, {
+    const taskRes = await yfetch(`${BASE}/task/skin-analysis`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -96,12 +128,17 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     if (!taskId) throw new Error("No task_id returned");
 
     // 4. Poll
-    const deadline = Date.now() + 60_000;
+    const deadline = Date.now() + 90_000;
     while (Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 2000));
-      const pollRes = await fetch(`${BASE}/task/skin-analysis/${taskId}`, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
+      let pollRes: Response;
+      try {
+        pollRes = await yfetch(`${BASE}/task/skin-analysis/${taskId}`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        }, 10_000);
+      } catch {
+        continue; // a single slow poll is not a failure; the overall deadline still applies
+      }
       if (!pollRes.ok) {
         throw new Error(`Poll failed: ${pollRes.status} ${await pollRes.text()}`);
       }
@@ -124,5 +161,6 @@ export const analyzeSkin = createServerFn({ method: "POST" })
       }
     }
     throw new Error("Analysis timed out");
-  });
+  }
+
 
