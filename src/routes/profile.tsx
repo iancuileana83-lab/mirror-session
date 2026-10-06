@@ -210,12 +210,17 @@ function ProfilePage() {
               >
                 Clear everything I entered
               </button>
-              <Link
-                to="/routine"
-                className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20"
-              >
-                See my routine
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link to="/routine" className="text-sm text-muted-foreground underline underline-offset-4">
+                  See my routine
+                </Link>
+                <Link
+                  to="/product"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20"
+                >
+                  Next: read a label
+                </Link>
+              </div>
             </div>
             <p className="text-center text-xs text-muted-foreground">
               Not medical advice. Ask your pharmacist or doctor about your medicines.

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductRouteImport } from './routes/product'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RoutineRouteImport } from './routes/routine'
 import { Route as RulesRouteImport } from './routes/rules'
@@ -19,6 +20,11 @@ import { Route as SkinRouteImport } from './routes/skin'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductRoute = ProductRouteImport.update({
+  id: '/product',
+  path: '/product',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -49,6 +55,7 @@ const SkinRoute = SkinRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
   '/routine': typeof RoutineRoute
   '/rules': typeof RulesRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
   '/routine': typeof RoutineRoute
   '/rules': typeof RulesRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/product': typeof ProductRoute
   '/profile': typeof ProfileRoute
   '/routine': typeof RoutineRoute
   '/rules': typeof RulesRoute
@@ -74,12 +83,27 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile' | '/routine' | '/rules' | '/sitemap.xml' | '/skin'
+  fullPaths:
+    | '/'
+    | '/product'
+    | '/profile'
+    | '/routine'
+    | '/rules'
+    | '/sitemap.xml'
+    | '/skin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/routine' | '/rules' | '/sitemap.xml' | '/skin'
+  to:
+    | '/'
+    | '/product'
+    | '/profile'
+    | '/routine'
+    | '/rules'
+    | '/sitemap.xml'
+    | '/skin'
   id:
     | '__root__'
     | '/'
+    | '/product'
     | '/profile'
     | '/routine'
     | '/rules'
@@ -89,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ProductRoute: typeof ProductRoute
   ProfileRoute: typeof ProfileRoute
   RoutineRoute: typeof RoutineRoute
   RulesRoute: typeof RulesRoute
@@ -103,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product': {
+      id: '/product'
+      path: '/product'
+      fullPath: '/product'
+      preLoaderRoute: typeof ProductRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -145,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ProductRoute: ProductRoute,
   ProfileRoute: ProfileRoute,
   RoutineRoute: RoutineRoute,
   RulesRoute: RulesRoute,
