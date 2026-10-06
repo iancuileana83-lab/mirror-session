@@ -15,6 +15,14 @@ import {
   SENSITIVE_NOTE,
 } from "@/lib/routine-rules";
 import { CONCERNS } from "@/lib/skin-concerns";
+import {
+  EFFECTS,
+  GROUPS,
+  MEDICINES,
+  PREGNANCY_FLAGS,
+  PREGNANCY_OK_NOTE,
+  type GroupId,
+} from "@/lib/knowledge-base";
 
 export const Route = createFileRoute("/rules")({
   head: () => ({
@@ -109,6 +117,70 @@ function RulesPage() {
           <p className="mt-3">{PREGNANCY_NOTE}</p>
           <p className="mt-2">{SENSITIVE_NOTE}</p>
           <p className="mt-3 font-medium text-foreground">{ALWAYS_ESCALATE}</p>
+        </section>
+
+        <section>
+          <h2 className="font-serif text-2xl text-foreground">Product check: ingredient groups</h2>
+          <p className="mt-2 text-muted-foreground">
+            A label gives the order of ingredients but not their amounts, so the check can only say an
+            ingredient is present. Groups are matched by their INCI names.
+          </p>
+          <ul className="mt-3 space-y-2">
+            {Object.values(GROUPS).map((g) => (
+              <li key={g.id} className="rounded-2xl border border-border bg-card p-4">
+                <p className="font-medium text-foreground">{g.label}</p>
+                <p className="text-muted-foreground">{g.about}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Matches: {g.terms.join(", ")}
+                  {g.also ? ` (only when the name also contains "${g.also}")` : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="font-serif text-2xl text-foreground">Product check: medicines</h2>
+          <ul className="mt-3 space-y-2">
+            {MEDICINES.map((m) => (
+              <li key={m.id} className="rounded-2xl border border-border bg-card p-4">
+                <p className="font-medium text-foreground">
+                  {m.label} <span className="font-normal text-muted-foreground">({m.note})</span>
+                </p>
+                <p className="text-muted-foreground">{m.tags.map((t) => EFFECTS[t].label).join("; ")}</p>
+              </li>
+            ))}
+          </ul>
+          <h3 className="mt-5 font-serif text-xl text-foreground">What each effect does to the check</h3>
+          <ul className="mt-2 space-y-2">
+            {Object.values(EFFECTS).map((e) => (
+              <li key={e.label} className="rounded-2xl border border-border bg-card p-4">
+                <p className="font-medium text-foreground">{e.label}</p>
+                <p className="text-muted-foreground">{e.summary}</p>
+                {e.spf && <p className="mt-1">Reminder: daily sunscreen.</p>}
+                <ul className="mt-1 list-disc pl-5">
+                  {e.flags.map((f) => (
+                    <li key={f.group}>
+                      {f.group === "strong_exfoliants" ? "Exfoliating acids" : GROUPS[f.group].label}:{" "}
+                      {f.level === "skip" ? "better to skip" : "ask your pharmacist or doctor"} ({f.why})
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="font-serif text-2xl text-foreground">Product check: pregnancy and breastfeeding</h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {PREGNANCY_FLAGS.map((f) => (
+              <li key={f.group}>
+                {GROUPS[f.group as GroupId].label}: {f.level === "skip" ? "better to skip" : "ask your doctor or pharmacist"} ({f.why})
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2">{PREGNANCY_OK_NOTE}</p>
         </section>
       </main>
     </div>

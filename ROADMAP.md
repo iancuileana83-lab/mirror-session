@@ -99,6 +99,6 @@ build + typecheck + a browser test; phases marked **REVIEW** stop for the pharma
 | Earlier work (before the change of direction): README, MIT license, `.env` handling, 12-concern skin scan, reviewed routine/safety rules, real scan tested | done, committed locally (not pushed) |
 | Oct 6 probe: makeup Virtual Try-On endpoint (`POST /s2s/v2.0/task/makeup-vto`) | **works on our key** (task accepted; a bad test image failed with no unit used; 1 unit per successful try-on; needs `src_file_url` public URL or file upload via `/s2s/v2.0/file`, to confirm in phase 6) |
 | 1 | done: new home and name, old event pages removed (clothes try-on code kept), sample face button on the scan page (drawn face), README rewritten, `tsc` clean, build passes |
-| 2 | next: profile + ingredient knowledge base, then **stop for pharmacist review** |
+| 2 | built, **waiting for pharmacist review**: `/profile` page (stored in the browser) and the draft knowledge base `src/lib/knowledge-base.ts`, shown readably on `/rules` (ingredient groups, 12 medicines and their effects, pregnancy/breastfeeding flags). Matcher tested on a fictional label. |
 | 3–10 | not started |
 | Approved Oct 6 | Plan approved. Judge sample mode: generated face + fictional label. Video narration says "an AI text reader" (no logos); Gemini named only in README and the written description. Cut order: shopping-agent polish, then "Is it working?", then stretch. |

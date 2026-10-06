@@ -262,6 +262,14 @@ function SkinAnalysis() {
         <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           {results && (
             <Link
+              to="/profile"
+              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+            >
+              Next: about you
+            </Link>
+          )}
+          {results && (
+            <Link
               to="/routine"
               className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-8 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
             >
