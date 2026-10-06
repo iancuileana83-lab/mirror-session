@@ -5,7 +5,7 @@
 
 import { classify } from "./knowledge-base";
 import type { Profile } from "./profile";
-import { runCheck, type CheckResult } from "./pharmacist-check";
+import { runCheck, type CheckResult } from "./counter-check";
 import type { ProductKind, ShelfItem } from "./shelf";
 import type { Scores } from "./skin-concerns";
 

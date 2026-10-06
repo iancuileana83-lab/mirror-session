@@ -22,7 +22,7 @@ import {
 } from "@/lib/shelf";
 import { evaluate, proposeBasket, type Line } from "@/lib/shopping-agent";
 import { DEMO_SCORES } from "@/lib/demo";
-import { activeGroupsOf, type Verdict } from "@/lib/pharmacist-check";
+import { activeGroupsOf, type Verdict } from "@/lib/counter-check";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({

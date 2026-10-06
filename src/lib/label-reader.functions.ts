@@ -2,7 +2,7 @@ import { guard } from "./rate-limit";
 import { createServerFn } from "@tanstack/react-start";
 
 // Label reader: sends ONE label photo to Gemini and gets back the printed ingredient list as text.
-// Gemini only transcribes. It never judges, ranks or advises; the pharmacist check is rule-based.
+// Gemini only transcribes. It never judges, ranks or advises; the counter check is rule-based.
 // Face photos never go through this function. The key stays on the server.
 
 export type LabelResult = {

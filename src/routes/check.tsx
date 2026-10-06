@@ -5,13 +5,13 @@ import { loadProduct, type Product } from "@/lib/product";
 import { loadBasket } from "@/lib/shelf";
 import { EMPTY_PROFILE, SAMPLE_PROFILE, loadProfile, saveProfile, type Profile } from "@/lib/profile";
 import { loadSkin } from "@/lib/mirror-session";
-import { runCheck, type BasketActive, type Category, type Verdict } from "@/lib/pharmacist-check";
+import { runCheck, type BasketActive, type Category, type Verdict } from "@/lib/counter-check";
 import type { Scores } from "@/lib/skin-concerns";
 
 export const Route = createFileRoute("/check")({
   head: () => ({
     meta: [
-      { title: "Pharmacist check - Counter Check" },
+      { title: "Check a product - Counter Check" },
       {
         name: "description",
         content: "Does this product fit your skin, your medicines and your allergies? Fixed rules, with the reasons.",
@@ -78,7 +78,7 @@ function CheckPage() {
       <main className="mx-auto w-full max-w-3xl space-y-6 px-6 pb-24">
         <section>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Step 4 of 5</p>
-          <h1 className="mt-3 font-serif text-4xl text-foreground sm:text-5xl">Pharmacist check</h1>
+          <h1 className="mt-3 font-serif text-4xl text-foreground sm:text-5xl">Counter check</h1>
         </section>
 
         {ready && !product && (

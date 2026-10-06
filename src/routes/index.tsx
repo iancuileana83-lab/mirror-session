@@ -9,7 +9,7 @@ const STEPS = [
   { icon: ScanFace, title: "Scan your face", text: "A YouCam skin scan, explained in plain words." },
   { icon: UserRound, title: "Tell us about you", text: "Allergies, medicines, pregnancy or breastfeeding." },
   { icon: ScanText, title: "Photo of the label", text: "An AI text reader copies the ingredient list. It never gives advice." },
-  { icon: ShieldCheck, title: "Pharmacist check", text: "Fixed rules say if it fits you, and why." },
+  { icon: ShieldCheck, title: "Counter check", text: "Fixed rules say if it fits you, and why." },
   { icon: ShoppingBasket, title: "Try, compare, confirm", text: "Preview colours, compare 2-3 products, you decide." },
 ];
 
@@ -34,11 +34,11 @@ function Index() {
           Counter Check
         </h1>
         <p className="mt-3 font-heading text-2xl text-foreground sm:text-3xl">
-          Your pharmacist, right before you buy.
+          Check a product before you buy it.
         </p>
 
         <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-          Standing at the shelf? Check a skincare or makeup product against your skin, your medicines
+          Standing at the shelf? Compare a skincare or makeup product with your skin, your medicines
           and your allergies before it goes in the basket.
         </p>
 

@@ -1,4 +1,4 @@
-// The pharmacist check: fixed rules, no AI. Same inputs always give the same verdict.
+// The counter check: fixed rules, no AI. Same inputs always give the same verdict.
 // Principles (decided by the author):
 //  1. Three levels only: "Good match", "Check first", "Better to skip", each with the exact
 //     ingredients and the reason (skin results, routine, medicine, pregnancy, allergy, preference).
