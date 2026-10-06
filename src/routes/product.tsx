@@ -205,10 +205,19 @@ function ProductPage() {
               ))}
             </ul>
             <p className="mt-3 text-xs text-muted-foreground">
-              This is only a list of what was recognised. The pharmacist check, with the verdict and the
-              reasons, comes next.
+              This is only a list of what was recognised. The verdict and the reasons come next.
             </p>
           </section>
+        )}
+        {ingredients.length > 0 && (
+          <div className="flex justify-center">
+            <Link
+              to="/check"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-10 text-base font-medium text-primary-foreground shadow-lg shadow-primary/20"
+            >
+              Check this product
+            </Link>
+          </div>
         )}
         <p className="text-center text-xs text-muted-foreground">Not medical advice. Ask your pharmacist or doctor.</p>
       </main>

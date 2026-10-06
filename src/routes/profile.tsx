@@ -9,7 +9,8 @@ import {
   PREFERENCE_CHOICES,
   type GroupId,
 } from "@/lib/knowledge-base";
-import { EMPTY_PROFILE, clearProfile, loadProfile, saveProfile, type Profile } from "@/lib/profile";
+import { EMPTY_PROFILE, SAMPLE_PROFILE, clearProfile, loadProfile, saveProfile, type Profile } from "@/lib/profile";
+import { WARNING_SIGNS } from "@/lib/routine-rules";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -199,17 +200,44 @@ function ProfilePage() {
               </div>
             </fieldset>
 
+            <fieldset className="rounded-3xl border border-border bg-card p-5">
+              <legend className="px-2 text-sm font-medium text-foreground">Do any of these apply?</legend>
+              {WARNING_SIGNS.map((w) => (
+                <label key={w.key} className="flex items-center gap-3 py-1 text-sm text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={profile[w.key]}
+                    onChange={(e) => update({ ...profile, [w.key]: e.target.checked })}
+                  />
+                  {w.label}
+                </label>
+              ))}
+              <p className="mt-2 text-xs text-muted-foreground">
+                If one applies, only a basic routine is advised and actives are paused until you have seen a
+                pharmacist or doctor.
+              </p>
+            </fieldset>
+
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-              <button
-                type="button"
-                onClick={() => {
-                  clearProfile();
-                  setProfile(EMPTY_PROFILE);
-                }}
-                className="text-sm text-muted-foreground underline underline-offset-4"
-              >
-                Clear everything I entered
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => update(SAMPLE_PROFILE)}
+                  className="text-left text-sm text-muted-foreground underline underline-offset-4"
+                >
+                  Demo: fill in a sample profile (fictional)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearProfile();
+                    setProfile(EMPTY_PROFILE);
+                  }}
+                  className="text-left text-sm text-muted-foreground underline underline-offset-4"
+                >
+                  Clear everything I entered
+                </button>
+              </div>
               <div className="flex items-center gap-4">
                 <Link to="/routine" className="text-sm text-muted-foreground underline underline-offset-4">
                   See my routine

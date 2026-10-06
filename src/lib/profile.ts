@@ -11,6 +11,10 @@ export type Profile = {
   customAvoid: string[];
   /** Ids from MEDICINES. */
   medicines: string[];
+  /** User-reported warning signs: any of these pauses actives. */
+  painfulLesions: boolean;
+  changingMole: boolean;
+  noImprovement: boolean;
 };
 
 export const EMPTY_PROFILE: Profile = {
@@ -19,6 +23,17 @@ export const EMPTY_PROFILE: Profile = {
   avoid: [],
   customAvoid: [],
   medicines: [],
+  painfulLesions: false,
+  changingMole: false,
+  noImprovement: false,
+};
+
+/** Fictional profile for the judge sample mode (not a real person). */
+export const SAMPLE_PROFILE: Profile = {
+  ...EMPTY_PROFILE,
+  sensitiveSkin: true,
+  avoid: ["fragrance", "nuts", "silicones"],
+  medicines: ["tetracyclines"],
 };
 
 const KEY = "cc:profile:v1";

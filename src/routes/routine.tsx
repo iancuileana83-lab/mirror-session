@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ShieldAlert, Sun, Moon, FlaskConical } from "lucide-react";
 import { loadSkin } from "@/lib/mirror-session";
+import { loadProfile, saveProfile } from "@/lib/profile";
 import {
   ALWAYS_ESCALATE,
   DEFAULT_OPTIONS,
@@ -34,7 +35,27 @@ function RoutinePage() {
   useEffect(() => {
     const skin = loadSkin();
     setScores((skin?.scores as Scores | undefined) ?? null);
+    const p = loadProfile();
+    setOptions({
+      pregnantOrBreastfeeding: p.pregnantOrBreastfeeding,
+      sensitive: p.sensitiveSkin,
+      painfulLesions: p.painfulLesions,
+      changingMole: p.changingMole,
+      noImprovement: p.noImprovement,
+    });
   }, []);
+
+  const change = (next: Options) => {
+    setOptions(next);
+    saveProfile({
+      ...loadProfile(),
+      pregnantOrBreastfeeding: next.pregnantOrBreastfeeding,
+      sensitiveSkin: next.sensitive,
+      painfulLesions: next.painfulLesions,
+      changingMole: next.changingMole,
+      noImprovement: next.noImprovement,
+    });
+  };
 
   const routine = useMemo(() => (scores ? buildRoutine(scores, options) : null), [scores, options]);
 
@@ -80,7 +101,7 @@ function RoutinePage() {
                 <input
                   type="checkbox"
                   checked={options.pregnantOrBreastfeeding}
-                  onChange={(e) => setOptions({ ...options, pregnantOrBreastfeeding: e.target.checked })}
+                  onChange={(e) => change({ ...options, pregnantOrBreastfeeding: e.target.checked })}
                 />
                 I am pregnant, trying to be, or breastfeeding
               </label>
@@ -88,7 +109,7 @@ function RoutinePage() {
                 <input
                   type="checkbox"
                   checked={options.sensitive}
-                  onChange={(e) => setOptions({ ...options, sensitive: e.target.checked })}
+                  onChange={(e) => change({ ...options, sensitive: e.target.checked })}
                 />
                 My skin is sensitive or reacts easily
               </label>
@@ -101,7 +122,7 @@ function RoutinePage() {
                   <input
                     type="checkbox"
                     checked={options[w.key]}
-                    onChange={(e) => setOptions({ ...options, [w.key]: e.target.checked })}
+                    onChange={(e) => change({ ...options, [w.key]: e.target.checked })}
                   />
                   {w.label}
                 </label>
