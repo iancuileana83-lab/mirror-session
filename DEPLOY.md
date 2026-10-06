@@ -68,7 +68,7 @@ gcloud run deploy counter-check --source . --region REGION --allow-unauthenticat
   --set-secrets "YOUCAM_API_KEY=counter-check-youcam-key:latest,GEMINI_API_KEY=counter-check-gemini-key:latest"
 ```
 
-**Done Oct 6:** live at https://counter-check-v4fk5lvbla-ez.a.run.app (build succeeded, Ready). `--allow-unauthenticated` did not apply the public
+**Done Oct 6:** live at https://counter-check-v4fk5lvbla-ez.a.run.app (build succeeded, Ready). The deploy command ended with "Resource counter-check already exists" (a retried create call; the service itself was created from the final build, revision `counter-check-00001`, 100% traffic). That error stopped it before `--allow-unauthenticated` took effect, so the public
 setting (every page gave 403), so this was run for counter-check only:
 
 ```powershell
