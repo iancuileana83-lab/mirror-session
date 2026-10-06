@@ -46,6 +46,20 @@ All YouCam and Gemini calls run on the server; API keys never reach the browser.
 The scan page has a "Try the sample" button that uses a drawn face (no real person). A fictional
 sample label is added with the label reader.
 
+## For judges: test it in 2 minutes, no account and no key
+
+Everything works without a login, your own photo or any key. The sample buttons use a drawn face and fictional products.
+
+1. **Scan**: open the scan page, press "Try the sample" (a drawn face), then "Analyze Skin". YouCam Skin Analysis returns 12 concerns.
+2. **About you**: press "Demo: fill in a sample profile (fictional)".
+3. **Label**: on the label page press "Try the sample label"; Gemini copies the ingredient list (it only transcribes).
+4. **Check**: "Check this product" gives a verdict with the reasons.
+5. **Try it on**: pick a lipstick or foundation shade; YouCam makeup Virtual Try-On applies it to the sample face.
+6. **Compare**: "Demo: load sample products, profile and scan" shows Now, Later, Check first and Skip; confirm to save the list.
+7. **Is it working?**: load the two demo scans and read the honest comparison; confirm a next check-in.
+
+The paid calls (scan, label reader, try-on) have per-visitor and daily limits. When one is reached, the app says so and
+shows a saved example, so the rest of the flow still works.
 ## Run locally
 
 Windows (PowerShell), Node 20+:

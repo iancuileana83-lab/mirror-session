@@ -6,6 +6,7 @@ import { makeupTryOn, type TryOnKind } from "@/lib/makeup-tryon.functions";
 import { fileToDataUrl, loadFace, saveFace } from "@/lib/mirror-session";
 import { shrinkDataUrl } from "@/lib/image-utils";
 import { makeSampleFace } from "@/lib/sample-face";
+import { isLimitError, limitMessage } from "@/lib/limit-messages";
 
 export const Route = createFileRoute("/tryon")({
   head: () => ({
@@ -90,6 +91,10 @@ function TryOnPage() {
       setResult(r.imageUrl);
     } catch (err) {
       console.error(err);
+      if (isLimitError(err)) {
+        setMessage(limitMessage(err, "try-ons"));
+        return;
+      }
       const detail = err instanceof Error && err.message.startsWith("Try-on:") ? ` (${err.message.slice(0, 160)})` : "";
       setMessage(`The try-on could not finish just now. Try again, or try another photo.${detail}`);
     } finally {

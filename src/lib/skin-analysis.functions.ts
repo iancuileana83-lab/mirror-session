@@ -1,4 +1,5 @@
-﻿import { createServerFn } from "@tanstack/react-start";
+import { guard } from "./rate-limit";
+import { createServerFn } from "@tanstack/react-start";
 import { CONCERNS, HD_ACTIONS, type ConcernId, type Scores } from "./skin-concerns";
 
 type UiResult = Scores & { all?: number };
@@ -43,6 +44,7 @@ export const analyzeSkin = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }): Promise<UiResult> => {
+    await guard("skin");
     try {
       return await runAnalysis(data.dataUrl);
     } catch (err) {

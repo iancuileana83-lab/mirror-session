@@ -6,6 +6,8 @@ import { fileToDataUrl, saveFace, saveSkin, clearFace } from "@/lib/mirror-sessi
 import { analyzeSkin } from "@/lib/skin-analysis.functions";
 import { makeSampleFace } from "@/lib/sample-face";
 import { addScan } from "@/lib/history";
+import { DEMO_SCORES } from "@/lib/demo";
+import { isLimitError, limitMessage } from "@/lib/limit-messages";
 import { BAND_LABEL, CONCERNS, bandOf, rankConcerns, type Scores } from "@/lib/skin-concerns";
 
 const bandLabel = (s?: number) => (typeof s === "number" ? BAND_LABEL[bandOf(s)] : "");
@@ -105,8 +107,17 @@ function SkinAnalysis() {
         focus: lowest ? lowest.concern.label : "",
         tip: "",
         scores: scores as Record<string, number>,
-      });    } catch (err) {
+      });
+    } catch (err) {
       console.error(err);
+      if (isLimitError(err)) {
+        // Demo limit: show a saved example (fictional) so the visit can continue. Not saved as a scan.
+        setResults({ scores: DEMO_SCORES, saved: false });
+        setState("done");
+        setErrorMsg(`${limitMessage(err, "face scans")} Below is a saved example result (fictional), not your photo.`);
+        saveSkin({ hydration: "", texture: "", focus: "", tip: "", scores: DEMO_SCORES as Record<string, number> });
+        return;
+      }
       setState("error");
       const detail = err instanceof Error && err.message.startsWith("YouCam:") ? ` (${err.message.slice(0, 200)})` : "";
       setErrorMsg(

@@ -1,3 +1,4 @@
+import { guard } from "./rate-limit";
 import { createServerFn } from "@tanstack/react-start";
 
 // Label reader: sends ONE label photo to Gemini and gets back the printed ingredient list as text.
@@ -91,6 +92,7 @@ export const readLabel = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }): Promise<LabelResult> => {
+    await guard("label");
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("Label reader: GEMINI_API_KEY is not configured");
     try {

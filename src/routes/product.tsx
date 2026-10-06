@@ -5,7 +5,8 @@ import { ArrowLeft, Loader2, ScanText, Upload, X } from "lucide-react";
 import { readLabel } from "@/lib/label-reader.functions";
 import { fileToDataUrl } from "@/lib/mirror-session";
 import { shrinkDataUrl } from "@/lib/image-utils";
-import { makeSampleLabel } from "@/lib/sample-label";
+import { SAMPLE_LABEL_INGREDIENTS, makeSampleLabel } from "@/lib/sample-label";
+import { isLimitError, limitMessage } from "@/lib/limit-messages";
 import { GROUPS, classify, splitInci } from "@/lib/knowledge-base";
 import { loadProduct, saveProduct } from "@/lib/product";
 
@@ -32,6 +33,7 @@ function ProductPage() {
   const [unclear, setUnclear] = useState<string[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [source, setSource] = useState<"photo" | "sample" | "typed">("typed");
+  const [limited, setLimited] = useState(false);
   const readLabelFn = useServerFn(readLabel);
 
   useEffect(() => {
@@ -90,6 +92,11 @@ function ProductPage() {
     } catch (err) {
       console.error(err);
       setState("error");
+      if (isLimitError(err)) {
+        setLimited(true);
+        setMessage(`${limitMessage(err, "label reading")} You can type or paste the list below, or use the sample list.`);
+        return;
+      }
       const detail = err instanceof Error && err.message.startsWith("Label reader:") ? ` (${err.message.slice(0, 160)})` : "";
       setMessage(`The label could not be read just now. You can type or paste the list below.${detail}`);
     }
@@ -169,6 +176,13 @@ function ProductPage() {
             </div>
           )}
           {message && <p className="mt-4 text-center text-sm text-destructive">{message}</p>}
+          {limited && (
+            <p className="mt-2 text-center text-sm">
+              <button type="button" onClick={() => persist(SAMPLE_LABEL_INGREDIENTS.join(", "), "sample")} className="font-medium text-primary underline underline-offset-4">
+                Use the sample list (fictional product)
+              </button>
+            </p>
+          )}
         </section>
 
         <section className="rounded-3xl border border-border bg-card p-5">

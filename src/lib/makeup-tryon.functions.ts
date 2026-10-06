@@ -1,3 +1,4 @@
+import { guard } from "./rate-limit";
 import { createServerFn } from "@tanstack/react-start";
 import { YOUCAM_BASE, pollTask, uploadImage, yfetch } from "./youcam-http";
 
@@ -32,6 +33,7 @@ export const makeupTryOn = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }): Promise<{ imageUrl: string }> => {
+    await guard("tryon");
     const apiKey = process.env.YOUCAM_API_KEY;
     if (!apiKey) throw new Error("Try-on: YOUCAM_API_KEY is not configured");
     try {

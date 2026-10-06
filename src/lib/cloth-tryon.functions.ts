@@ -1,3 +1,4 @@
+import { guard } from "./rate-limit";
 import { createServerFn } from "@tanstack/react-start";
 
 const BASE = "https://yce-api-01.makeupar.com/s2s/v2.0";
@@ -77,6 +78,7 @@ export const tryOnCloth = createServerFn({ method: "POST" })
     },
   )
   .handler(async ({ data }): Promise<{ imageUrl: string }> => {
+    await guard("tryon");
     const apiKey = process.env.YOUCAM_API_KEY;
     if (!apiKey) throw new Error("YOUCAM_API_KEY is not configured");
 

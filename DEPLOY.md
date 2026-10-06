@@ -67,6 +67,25 @@ gcloud run deploy counter-check --source . --region REGION --allow-unauthenticat
 `--allow-unauthenticated` makes the link public (judges need no login); an organisation policy may block it.
 `--max-instances 2` and `--min-instances 0` cap the cost; the app itself adds per-visitor and daily caps (roadmap phase 9).
 
+## 5b. Limits inside the app, and an emergency pause
+
+The server counts the three paid calls (face scan, label reader, try-on) per visitor and per day, and shows a
+friendly "demo limit reached" message with a saved example when a limit is hit. Defaults (per visitor per hour /
+per day, and total per instance per day): scan 3 / 6 / 40, label 6 / 12 / 100, try-on 3 / 6 / 30. Counts are in
+memory, so each instance counts for itself and a cold start resets them; `--max-instances 2` bounds the total.
+The YouCam and Gemini balances are the hard stop.
+
+Raise all limits (a number of 1 or more) or pause all three paid calls at once, without redeploying:
+
+```powershell
+gcloud run services update counter-check --region REGION --update-env-vars DEMO_LIMIT_SCALE=2
+gcloud run services update counter-check --region REGION --update-env-vars DEMO_LOCKDOWN=1
+gcloud run services update counter-check --region REGION --remove-env-vars DEMO_LOCKDOWN
+```
+
+With the pause on, judges still see the sample face, the sample label, the check, the comparison and the
+progress page; only the three paid calls show the "paused" message and the saved example.
+
 ## 6. Budget alert
 
 ```powershell
